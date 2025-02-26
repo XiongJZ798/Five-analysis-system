@@ -1,0 +1,13 @@
+/* 移除所有 -ms-high-contrast 相关样式 */
+* {
+  forced-color-adjust: none;
+}
+
+/* 支持新的强制色彩模式 */
+@media (forced-colors: active) {
+  button, 
+  input,
+  select {
+    forced-colors-mode: preserve;
+  }
+} 
