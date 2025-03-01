@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # MySQL服务
+  mysql:
+    image: mysql:8.0
+    container_name: g5rate-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 030123
+      MYSQL_DATABASE: g5rate
+      MYSQL_USER: g5rate
+      MYSQL_PASSWORD: g5rate
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 应用服务
+  app:
+    build: .
+    container_name: g5rate-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/g5rate?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=g5rate
+      - SPRING_DATASOURCE_PASSWORD=g5rate
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql-data: 

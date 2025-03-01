@@ -275,28 +275,31 @@ public class FileService {
 
                 case FORMULA:
                     try {
-                        FormulaEvaluator evaluator = cell.getSheet().getWorkbook()
-                                .getCreationHelper()
-                                .createFormulaEvaluator();
-                        CellValue cellValue = evaluator.evaluate(cell);
-                        
-                        Cell tempCell = cell.getRow().createCell(cell.getColumnIndex() + 100);
+                        // 替换之前的创建公式评估器方式，避免使用内部类
+                        String formulaValue = "";
                         try {
-                            switch (cellValue.getCellType()) {
-                                case NUMERIC:
-                                    tempCell.setCellValue(cellValue.getNumberValue());
-                                    return getCellValueAsDateTime(tempCell);
-                                case STRING:
-                                    tempCell.setCellValue(cellValue.getStringValue());
-                                    return getCellValueAsDateTime(tempCell);
-                                default:
-                                    break;
+                            // 尝试直接获取公式的字符串值
+                            formulaValue = cell.getStringCellValue();
+                        } catch (Exception ex) {
+                            try {
+                                // 如果无法获取字符串，尝试获取数值
+                                double numValue = cell.getNumericCellValue();
+                                // 如果是日期格式
+                                if (DateUtil.isCellDateFormatted(cell)) {
+                                    return convertDateToLocalDateTime(
+                                        DateUtil.getJavaDate(numValue));
+                                }
+                            } catch (Exception ex2) {
+                                log.debug("无法直接获取公式单元格值", ex2);
                             }
-                        } finally {
-                            cell.getRow().removeCell(tempCell);
+                        }
+                        
+                        // 如果获取到了公式的字符串值
+                        if (!formulaValue.isEmpty()) {
+                            return parseStringAsDateTime(formulaValue);
                         }
                     } catch (Exception e) {
-                        log.debug("公式计算失败", e);
+                        log.debug("公式处理失败", e);
                     }
                     break;
             }
@@ -361,5 +364,47 @@ public class FileService {
             log.error("解析整数时发生错误", e);
             throw new IllegalArgumentException("整数格式错误: " + e.getMessage());
         }
+    }
+
+    /**
+     * 将java.util.Date转换为LocalDateTime
+     */
+    private LocalDateTime convertDateToLocalDateTime(java.util.Date date) {
+        if (date == null) {
+            return null;
+        }
+        return date.toInstant()
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDateTime();
+    }
+    
+    /**
+     * 尝试将字符串解析为日期时间
+     */
+    private LocalDateTime parseStringAsDateTime(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        
+        value = value.trim();
+        
+        // 尝试使用不同的格式解析
+        for (DateTimeFormatter formatter : DATE_FORMATTERS) {
+            try {
+                if (value.length() <= formatter.toString().length()) {
+                    if (formatter.toString().contains("HH:mm:ss") && !value.contains(":")) {
+                        continue;
+                    }
+                    LocalDateTime dateTime = LocalDateTime.parse(value, formatter);
+                    if (dateTime != null) {
+                        return dateTime;
+                    }
+                }
+            } catch (DateTimeParseException e) {
+                // 继续尝试其他格式
+            }
+        }
+        
+        return null;
     }
 } 

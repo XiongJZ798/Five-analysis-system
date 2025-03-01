@@ -1,40 +1,39 @@
+# 后端忽略文件
+HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-test/
+# 前端忽略文件
+src/5ganalysis-ui/node_modules/
+src/5ganalysis-ui/dist/
+src/5ganalysis-ui/.env.local
+src/5ganalysis-ui/.env.*.local
+src/5ganalysis-ui/npm-debug.log*
+src/5ganalysis-ui/yarn-debug.log*
+src/5ganalysis-ui/yarn-error.log*
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+# IDE相关
+.idea/
 *.iws
 *.iml
 *.ipr
-
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
 .vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-### Mac OS ###
+# 系统文件
 .DS_Store
+Thumbs.db
+
+# 日志文件
+logs/
+*.log
+
+# 数据库文件
+*.db
+*.sqlite
