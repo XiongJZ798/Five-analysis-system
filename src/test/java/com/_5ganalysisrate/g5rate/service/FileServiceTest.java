@@ -1,18 +1,30 @@
 package com._5ganalysisrate.g5rate.service;
 
 import com._5ganalysisrate.g5rate.dto.ApiResponse;
+import com._5ganalysisrate.g5rate.model.TestData;
 import com._5ganalysisrate.g5rate.repository.TestDataRepository;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -131,5 +143,127 @@ public class FileServiceTest {
         assertNotNull(response);
         assertTrue(response.getCode() >= 400);
         assertTrue(response.getMessage().contains("文件处理失败"));
+    }
+
+    @Test
+    void testProcessValidExcelFile() throws Exception {
+        // 创建模拟的MultipartFile
+        MultipartFile mockFile = mock(MultipartFile.class);
+        when(mockFile.getOriginalFilename()).thenReturn("test.xlsx");
+        
+        // 读取模拟的Excel文件内容
+        InputStream inputStream = mock(InputStream.class);
+        when(mockFile.getInputStream()).thenReturn(inputStream);
+        
+        // 创建模拟的工作簿和工作表
+        Workbook mockWorkbook = mock(Workbook.class);
+        Sheet mockSheet = mock(Sheet.class);
+        Row headerRow = mock(Row.class);
+        Row dataRow = mock(Row.class);
+        
+        try (MockedStatic<WorkbookFactory> workbookFactoryMock = mockStatic(WorkbookFactory.class)) {
+            workbookFactoryMock.when(() -> WorkbookFactory.create(inputStream)).thenReturn(mockWorkbook);
+            
+            when(mockWorkbook.getSheetAt(0)).thenReturn(mockSheet);
+            when(mockSheet.getRow(0)).thenReturn(headerRow);
+            when(mockSheet.getRow(1)).thenReturn(dataRow);
+            when(mockSheet.getLastRowNum()).thenReturn(1);
+            when(headerRow.getLastCellNum()).thenReturn((short) 7);
+            when(dataRow.getLastCellNum()).thenReturn((short) 7);
+            
+            // 模拟单元格数据
+            for (int i = 0; i < 7; i++) {
+                Cell headerCell = mock(Cell.class);
+                when(headerRow.getCell(i)).thenReturn(headerCell);
+                
+                // 头部单元格内容
+                String[] headers = {"TestTime", "RSRP", "SINR", "MacThroughput", "Rank", "MCS", "RbNum", "BLER"};
+                if (i < headers.length) {
+                    when(headerCell.getStringCellValue()).thenReturn(headers[i]);
+                }
+                
+                Cell dataCell = mock(Cell.class);
+                when(dataRow.getCell(i)).thenReturn(dataCell);
+                
+                // 根据列类型设置单元格值
+                if (i == 0) {
+                    // TestTime 列
+                    when(dataCell.getCellType()).thenReturn(CellType.NUMERIC);
+                    when(dataCell.getNumericCellValue()).thenReturn(DateUtil.getExcelDate(new Date()));
+                } else {
+                    // 数值列
+                    when(dataCell.getCellType()).thenReturn(CellType.NUMERIC);
+                    when(dataCell.getNumericCellValue()).thenReturn(10.0 + i);
+                }
+            }
+            
+            // 预期保存的实体
+            ArgumentCaptor<List<TestData>> testDataCaptor = ArgumentCaptor.forClass(List.class);
+            
+            // 执行测试
+            ApiResponse<?> response = fileService.processExcelFile(mockFile);
+            
+            // 验证保存调用
+            verify(testDataRepository).saveAll(testDataCaptor.capture());
+            
+            // 验证解析结果
+            assertNotNull(response);
+            assertEquals(200, response.getCode());
+            
+            // 验证解析的数据
+            List<TestData> capturedData = testDataCaptor.getValue();
+            assertFalse(capturedData.isEmpty());
+        }
+    }
+
+    @Test
+    void testHandleDatabaseError() throws Exception {
+        // 创建模拟的MultipartFile
+        MultipartFile mockFile = mock(MultipartFile.class);
+        when(mockFile.getOriginalFilename()).thenReturn("test.xlsx");
+        
+        // 读取模拟的Excel文件内容
+        InputStream inputStream = mock(InputStream.class);
+        when(mockFile.getInputStream()).thenReturn(inputStream);
+        
+        // 创建模拟的工作簿和工作表
+        Workbook mockWorkbook = mock(Workbook.class);
+        Sheet mockSheet = mock(Sheet.class);
+        Row headerRow = mock(Row.class);
+        Row dataRow = mock(Row.class);
+        
+        try (MockedStatic<WorkbookFactory> workbookFactoryMock = mockStatic(WorkbookFactory.class)) {
+            workbookFactoryMock.when(() -> WorkbookFactory.create(inputStream)).thenReturn(mockWorkbook);
+            
+            when(mockWorkbook.getSheetAt(0)).thenReturn(mockSheet);
+            when(mockSheet.getRow(0)).thenReturn(headerRow);
+            when(mockSheet.getRow(1)).thenReturn(dataRow);
+            when(mockSheet.getLastRowNum()).thenReturn(1);
+            when(headerRow.getLastCellNum()).thenReturn((short) 7);
+            
+            // 模拟数据行
+            when(dataRow.getLastCellNum()).thenReturn((short) 7);
+            for (int i = 0; i < 7; i++) {
+                Cell headerCell = mock(Cell.class);
+                when(headerRow.getCell(i)).thenReturn(headerCell);
+                when(headerCell.getStringCellValue()).thenReturn("Column" + i);
+                
+                Cell dataCell = mock(Cell.class);
+                when(dataRow.getCell(i)).thenReturn(dataCell);
+                when(dataCell.getCellType()).thenReturn(CellType.NUMERIC);
+                when(dataCell.getNumericCellValue()).thenReturn(10.0);
+            }
+            
+            // 模拟数据库错误
+            doThrow(new RuntimeException("Database error")).when(testDataRepository).saveAll(any());
+            
+            // 执行测试
+            ApiResponse<?> response = fileService.processExcelFile(mockFile);
+            
+            // 验证错误消息
+            assertNotNull(response);
+            assertTrue(response.getCode() >= 400);
+            assertTrue(response.getMessage().contains("文件处理失败"));
+        }
     }
 } 

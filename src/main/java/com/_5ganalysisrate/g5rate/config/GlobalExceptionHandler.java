@@ -4,6 +4,7 @@ import com._5ganalysisrate.g5rate.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
  * 全局异常处理器
@@ -28,6 +29,15 @@ public class GlobalExceptionHandler {
     public ApiResponse<Void> handleIllegalArgumentException(IllegalArgumentException e) {
         log.warn("参数验证失败", e);
         return ApiResponse.error(400, "参数错误：" + e.getMessage());
+    }
+
+    /**
+     * 处理资源未找到异常
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ApiResponse<Void> handleNoResourceFoundException(NoResourceFoundException e) {
+        log.error("请求的资源不存在", e);
+        return ApiResponse.error(404, "请检查请求路径是否正确，服务器找不到对应的资源");
     }
 
     /**

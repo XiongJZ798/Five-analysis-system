@@ -1,9 +1,9 @@
 # 后端忽略文件
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# HELP.md
+# target/
+# !.mvn/wrapper/maven-wrapper.jar
+# !**/src/main/**/target/
+# !**/src/test/**/target/
 
 # 前端忽略文件
 src/5ganalysis-ui/node_modules/

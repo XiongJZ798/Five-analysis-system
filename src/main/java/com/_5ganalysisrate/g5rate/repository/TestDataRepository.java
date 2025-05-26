@@ -2,9 +2,11 @@ package com._5ganalysisrate.g5rate.repository;
 
 import com._5ganalysisrate.g5rate.model.TestData;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,6 +55,15 @@ public interface TestDataRepository extends JpaRepository<TestData, Long> {
      */
     @Query("SELECT t.macThroughput FROM TestData t WHERE t.macThroughput IS NOT NULL ORDER BY t.macThroughput")
     List<Double> findAllMacThroughput();
+
+    /**
+     * 重置自增ID为1，使新数据从ID=1开始插入
+     * 注意: 此操作需要数据库管理员权限
+     */
+    @Modifying
+    @Transactional
+    @Query(value = "ALTER TABLE test_data AUTO_INCREMENT = 1", nativeQuery = true)
+    void resetAutoIncrement();
     
     /**
      * 查询所有数据并按时间排序

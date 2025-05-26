@@ -25,7 +25,7 @@ public class TestData {
      * 单位: %
      * 范围: 0-100
      */
-    @Column(name = "bler", nullable = false)
+    @Column(name = "bler")
     private Double bler;
     
     /**
@@ -38,45 +38,49 @@ public class TestData {
      * MAC层下行速率
      * 单位: Mbps
      */
-    @Column(name = "mac_throughput", nullable = false)
+    @Column(name = "mac_throughput")
     private Double macThroughput;
     
     /**
      * 调制编码方案(Modulation and Coding Scheme)
      * 范围: 0-28
      */
-    @Column(name = "mcs", nullable = false)
-    private Integer mcs;
+    @Column(name = "mcs")
+    private Double mcs;
     
     /**
      * MIMO传输层数(Rank)
      * 范围: 1-8
      */
-    @Column(name = "mimo_rank", nullable = false)
+    @Column(name = "mimo_rank")
     private Integer rank;
     
     /**
-     * 资源块数量(Resource Block Number)
+     * 物理资源块数量(Physical Resource Block Number)
+     * 范围: 0-275
      */
-    @Column(name = "rb_num", nullable = false)
-    private Integer rbNum;
+    @Column(name = "prb_num")
+    private Integer prbNum;
     
     /**
      * 参考信号接收功率(Reference Signal Received Power)
      * 单位: dBm
+     * 范围: -140dBm到-44dBm
      */
-    @Column(name = "rsrp", nullable = false)
+    @Column(name = "rsrp")
     private Double rsrp;
     
     /**
      * 信噪比(Signal to Interference plus Noise Ratio)
      * 单位: dB
+     * 范围: -20dB到40dB
      */
-    @Column(name = "sinr", nullable = false)
+    @Column(name = "sinr")
     private Double sinr;
     
     /**
      * 测试时间
+     * 精确到毫秒
      */
     @Column(name = "test_time", nullable = false)
     private LocalDateTime testTime;

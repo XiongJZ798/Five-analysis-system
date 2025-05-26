@@ -10,7 +10,9 @@ VALUES
     (NOW() + INTERVAL 2 HOUR, -88.0, 13.5, 90.0, 2, 14, 45, 1.8, NOW(), NOW());
 
 -- 插入峰值速率计算历史记录
-INSERT INTO peak_rate_history (mode, frame_type, bandwidth, dl_slots, special_slots, peak_rate, create_time, update_time)
+INSERT INTO peak_rate_history (mode, frame_type, bandwidth, dl_slots, special_slots, modulation_order, dl_streams, peak_rate, create_time, update_time)
 VALUES 
-    ('FDD', NULL, 100.0, 10, NULL, 2.5, NOW(), NOW()),
-    ('TDD', 'FRAME1', 100.0, 8, 2, 2.0, NOW(), NOW()); 
+    ('FDD', NULL, 100.0, 10, NULL, 8, 4, 2.5, NOW(), NOW()),
+    ('TDD', 'FRAME1', 100.0, 8, 2, 8, 4, 2.0, NOW(), NOW()),
+    ('FDD', NULL, 100.0, 12, NULL, 16, 8, 5.0, NOW(), NOW()),
+    ('TDD', 'FRAME2', 150.0, 10, 2, 16, 4, 2.8, NOW(), NOW()); 

@@ -87,6 +87,23 @@ public class AnalysisControllerIntegrationTest {
     }
 
     @Test
+    void testGetRateDistributionWithRanges() throws Exception {
+        // 创建包含速率区间的请求
+        List<Map<String, Double>> ranges = Arrays.asList(
+            Map.of("min", 0.0, "max", 100.0),
+            Map.of("min", 100.0, "max", 200.0)
+        );
+        
+        mockMvc.perform(post("/analysis/rate-distribution-chart")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(ranges)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.pieData").isArray())
+                .andExpect(jsonPath("$.data.pieData.length()").value(2));
+    }
+
+    @Test
     void testCalculatePeakRate_FDD() throws Exception {
         Map<String, Object> request = new HashMap<>();
         request.put("mode", "FDD");
