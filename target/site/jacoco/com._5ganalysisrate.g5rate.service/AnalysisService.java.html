@@ -1,0 +1,1126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalysisService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Five-analysis-system</a> &gt; <a href="index.source.html" class="el_package">com._5ganalysisrate.g5rate.service</a> &gt; <span class="el_source">AnalysisService.java</span></div><h1>AnalysisService.java</h1><pre class="source lang-java linenums">package com._5ganalysisrate.g5rate.service;
+
+import com._5ganalysisrate.g5rate.model.TestData;
+import com._5ganalysisrate.g5rate.repository.TestDataRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+<span class="fc" id="L19">@Slf4j</span>
+@Service
+<span class="fc" id="L21">@RequiredArgsConstructor</span>
+public class AnalysisService {
+
+    private final TestDataRepository testDataRepository;
+
+    // 添加缓存以减少数据库查询
+    // 移除@Cacheable注解，确保每次都从数据库获取最新数据
+    public List&lt;TestData&gt; getTimeSeriesDataCache() {
+        try {
+            // 限制数据量，防止OOM错误
+<span class="nc" id="L31">            return testDataRepository.findAllByOrderByTestTimeAsc().stream()</span>
+<span class="nc" id="L32">                    .limit(5000)</span>
+<span class="nc" id="L33">                    .collect(Collectors.toList());</span>
+<span class="nc" id="L34">        } catch (Exception e) {</span>
+            // 记录异常，返回空列表
+<span class="nc" id="L36">            log.error(&quot;获取时序数据缓存失败&quot;, e);</span>
+<span class="nc" id="L37">            return Collections.emptyList();</span>
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Map&lt;String, Object&gt; getTimeSeriesData(List&lt;String&gt; dimensions) {
+        try {
+<span class="fc" id="L44">            log.info(&quot;开始获取多维度分析数据，维度: {}&quot;, dimensions);</span>
+
+            // 使用分页方式获取数据，减少内存压力，并按创建时间降序排序以获取最新数据
+<span class="fc" id="L47">            int pageSize = 2000; // 增加页面大小以获取更多数据</span>
+
+            // 清除缓存，确保获取最新数据
+<span class="fc" id="L50">            log.info(&quot;清除缓存，确保获取最新数据&quot;);</span>
+
+            // 按创建时间降序排序，确保获取最新上传的数据
+<span class="fc" id="L53">            List&lt;TestData&gt; allData = testDataRepository.findAll(PageRequest.of(0, pageSize, Sort.by(&quot;createTime&quot;).descending()))</span>
+<span class="fc" id="L54">                    .getContent();</span>
+
+<span class="fc" id="L56">            log.info(&quot;从数据库获取到 {} 条数据记录&quot;, allData.size());</span>
+
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">            if (allData.isEmpty()) {</span>
+<span class="nc" id="L59">                log.warn(&quot;没有找到测试数据&quot;);</span>
+<span class="nc" id="L60">                return Map.of(</span>
+<span class="nc" id="L61">                    &quot;series&quot;, Collections.emptyList(),</span>
+                    &quot;legend&quot;, dimensions
+                );
+            }
+
+<span class="fc" id="L66">            log.info(&quot;找到{}条测试数据，准备进行多维度分析&quot;, allData.size());</span>
+
+<span class="fc" id="L68">            Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L69">            List&lt;Map&lt;String, Object&gt;&gt; series = new ArrayList&lt;&gt;();</span>
+
+            // 优化数据采样 - 最多返回2000个点，确保关键点被保留
+<span class="fc" id="L72">            int maxPoints = 2000;</span>
+<span class="fc" id="L73">            int samplingInterval = Math.max(1, allData.size() / maxPoints);</span>
+
+<span class="fc" id="L75">            log.info(&quot;数据点总数: {}, 采样间隔: {}, 预计采样后点数: ~{}&quot;,</span>
+<span class="fc" id="L76">                allData.size(), samplingInterval, allData.size() / samplingInterval);</span>
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">            for (String dimension : dimensions) {</span>
+<span class="fc" id="L79">                Map&lt;String, Object&gt; seriesData = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L80">                seriesData.put(&quot;name&quot;, dimension);</span>
+
+                // 采样数据并保留关键点（极值点）
+<span class="fc" id="L83">                List&lt;Object[]&gt; data = new ArrayList&lt;&gt;();</span>
+                
+                // 获取单一维度的统计信息用于日志
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                if (&quot;rsrp&quot;.equals(dimension)) {</span>
+<span class="fc" id="L87">                    DoubleSummaryStatistics rsrpStats = allData.stream()</span>
+<span class="fc" id="L88">                        .map(TestData::getRsrp)</span>
+<span class="fc" id="L89">                        .filter(Objects::nonNull)</span>
+<span class="fc" id="L90">                        .mapToDouble(Double::doubleValue)</span>
+<span class="fc" id="L91">                        .summaryStatistics();</span>
+<span class="fc" id="L92">                    log.info(&quot;RSRP数据统计: 最小值={}, 最大值={}, 平均值={}, 数据点数={}&quot;,</span>
+<span class="fc" id="L93">                        rsrpStats.getMin(), rsrpStats.getMax(), rsrpStats.getAverage(), rsrpStats.getCount());</span>
+                }
+
+                // 为每个维度计算关键数据点
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">                if (samplingInterval &gt; 1) {</span>
+<span class="nc" id="L98">                    List&lt;TestData&gt; sampledData = new ArrayList&lt;&gt;();</span>
+
+                    // 常规采样
+<span class="nc bnc" id="L101" title="All 2 branches missed.">                    for (int i = 0; i &lt; allData.size(); i += samplingInterval) {</span>
+<span class="nc" id="L102">                        sampledData.add(allData.get(i));</span>
+                    }
+
+                    // 确保最后一个点被包含
+<span class="nc bnc" id="L106" title="All 4 branches missed.">                    if (allData.size() &gt; 0 &amp;&amp; !sampledData.contains(allData.get(allData.size() - 1))) {</span>
+<span class="nc" id="L107">                        sampledData.add(allData.get(allData.size() - 1));</span>
+                    }
+
+                    // 查找关键点：局部最大/最小值和快速变化的区域
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                    if (samplingInterval &gt; 2) { // 只在较大间隔时添加关键点</span>
+<span class="nc" id="L112">                        List&lt;TestData&gt; keyPoints = findKeyPoints(allData, dimension);</span>
+<span class="nc" id="L113">                        log.info(&quot;为维度 {} 找到 {} 个关键点&quot;, dimension, keyPoints.size());</span>
+
+                        // 合并关键点和采样点，按时间排序
+<span class="nc" id="L116">                        sampledData.addAll(keyPoints);</span>
+<span class="nc" id="L117">                        sampledData = sampledData.stream()</span>
+<span class="nc" id="L118">                            .distinct()</span>
+<span class="nc" id="L119">                            .sorted(Comparator.comparing(TestData::getTestTime))</span>
+<span class="nc" id="L120">                            .collect(Collectors.toList());</span>
+                    }
+
+                    // 处理采样后的数据
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                    for (TestData testData : sampledData) {</span>
+<span class="nc" id="L125">                        Object value = getDimensionValue(testData, dimension);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                        if (value != null) {</span>
+<span class="nc" id="L127">                            data.add(new Object[]{</span>
+<span class="nc" id="L128">                                testData.getTestTime().format(DateTimeFormatter.ofPattern(&quot;HH:mm:ss.SSS&quot;)),</span>
+                                value
+                            });
+                        }
+<span class="nc" id="L132">                    }</span>
+<span class="nc" id="L133">                } else {</span>
+                    // 如果数据量不大，使用所有数据点
+<span class="fc bfc" id="L135" title="All 2 branches covered.">                    for (TestData testData : allData) {</span>
+<span class="fc" id="L136">                        Object value = getDimensionValue(testData, dimension);</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">                        if (value != null) {</span>
+<span class="fc" id="L138">                            data.add(new Object[]{</span>
+<span class="fc" id="L139">                                testData.getTestTime().format(DateTimeFormatter.ofPattern(&quot;HH:mm:ss.SSS&quot;)),</span>
+                                value
+                            });
+                        }
+<span class="fc" id="L143">                    }</span>
+                }
+
+<span class="fc" id="L146">                log.debug(&quot;维度 {} 最终数据点数: {}&quot;, dimension, data.size());</span>
+                
+                // 如果是RSRP维度，确保采样后的数据包含整个范围的值
+<span class="fc bfc" id="L149" title="All 2 branches covered.">                if (&quot;rsrp&quot;.equals(dimension)) {</span>
+<span class="fc" id="L150">                    log.info(&quot;RSRP维度最终采样: 数据点数={}&quot;, data.size());</span>
+                    // 输出部分采样数据点用于调试
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">                    if (!data.isEmpty()) {</span>
+<span class="fc" id="L153">                        int logCount = Math.min(5, data.size());</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">                        for (int i = 0; i &lt; logCount; i++) {</span>
+<span class="fc" id="L155">                            log.debug(&quot;RSRP采样点{}: 时间={}, 值={}dBm&quot;, </span>
+<span class="fc" id="L156">                                i, data.get(i)[0], data.get(i)[1]);</span>
+                        }
+                        // 输出最后几个点
+<span class="fc bfc" id="L159" title="All 2 branches covered.">                        for (int i = Math.max(0, data.size() - logCount); i &lt; data.size(); i++) {</span>
+<span class="fc" id="L160">                            log.debug(&quot;RSRP采样点{}: 时间={}, 值={}dBm&quot;, </span>
+<span class="fc" id="L161">                                i, data.get(i)[0], data.get(i)[1]);</span>
+                        }
+                    }
+                }
+                
+<span class="fc" id="L166">                seriesData.put(&quot;data&quot;, data);</span>
+<span class="fc" id="L167">                series.add(seriesData);</span>
+<span class="fc" id="L168">            }</span>
+
+<span class="fc" id="L170">            result.put(&quot;series&quot;, series);</span>
+<span class="fc" id="L171">            result.put(&quot;legend&quot;, dimensions);</span>
+<span class="fc" id="L172">            return result;</span>
+<span class="nc" id="L173">        } catch (Exception e) {</span>
+<span class="nc" id="L174">            log.error(&quot;获取时序数据失败&quot;, e);</span>
+<span class="nc" id="L175">            throw new RuntimeException(&quot;获取时序数据失败: &quot; + e.getMessage());</span>
+        }
+    }
+
+    /**
+     * 查找数据中的关键点（局部最大/最小值和快速变化的点）
+     */
+    private List&lt;TestData&gt; findKeyPoints(List&lt;TestData&gt; allData, String dimension) {
+<span class="nc" id="L183">        List&lt;TestData&gt; keyPoints = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L184">        int windowSize = 5; // 滑动窗口大小</span>
+        
+        // 对RSRP维度使用更小的窗口大小和更敏感的检测
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (&quot;rsrp&quot;.equals(dimension)) {</span>
+<span class="nc" id="L188">            windowSize = 3; // RSRP维度使用更小的窗口</span>
+        }
+
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (allData.size() &lt;= windowSize * 2) {</span>
+<span class="nc" id="L192">            return keyPoints; // 数据点太少，不需要查找关键点</span>
+        }
+        
+        // 获取所有维度数据的统计信息，用于计算变化阈值
+<span class="nc" id="L196">        List&lt;Double&gt; dimensionValues = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        for (TestData data : allData) {</span>
+<span class="nc" id="L198">            Object value = getDimensionValue(data, dimension);</span>
+<span class="nc bnc" id="L199" title="All 4 branches missed.">            if (value != null &amp;&amp; value instanceof Number) {</span>
+<span class="nc" id="L200">                dimensionValues.add(((Number) value).doubleValue());</span>
+            }
+<span class="nc" id="L202">        }</span>
+        
+        // 如果没有有效数据，返回空列表
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (dimensionValues.isEmpty()) {</span>
+<span class="nc" id="L206">            return keyPoints;</span>
+        }
+        
+        // 计算维度数据的统计信息
+<span class="nc" id="L210">        DoubleSummaryStatistics stats = dimensionValues.stream()</span>
+<span class="nc" id="L211">            .mapToDouble(Double::doubleValue)</span>
+<span class="nc" id="L212">            .summaryStatistics();</span>
+<span class="nc" id="L213">        double min = stats.getMin();</span>
+<span class="nc" id="L214">        double max = stats.getMax();</span>
+<span class="nc" id="L215">        double range = max - min;</span>
+        
+        // 对RSRP维度进行特殊处理：识别特定值范围的数据点
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        if (&quot;rsrp&quot;.equals(dimension)) {</span>
+<span class="nc" id="L219">            log.info(&quot;RSRP维度数据范围: {}dBm 到 {}dBm&quot;, min, max);</span>
+            
+            // 如果有-80dBm附近的值，确保将其作为关键点添加
+<span class="nc bnc" id="L222" title="All 2 branches missed.">            for (int i = 0; i &lt; allData.size(); i++) {</span>
+<span class="nc" id="L223">                TestData data = allData.get(i);</span>
+<span class="nc" id="L224">                Double rsrpValue = data.getRsrp();</span>
+                
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                if (rsrpValue != null) {</span>
+                    // 特别关注-80dBm附近的值（增加标记该区域的关键点）
+<span class="nc bnc" id="L228" title="All 4 branches missed.">                    if (rsrpValue &gt;= -82 &amp;&amp; rsrpValue &lt;= -78) {</span>
+<span class="nc" id="L229">                        keyPoints.add(data);</span>
+<span class="nc" id="L230">                        log.debug(&quot;添加特定范围RSRP关键点: {}dBm, 时间: {}&quot;, rsrpValue, data.getTestTime());</span>
+                    }
+                    
+                    // 每隔1dBm的数据也作为关键点（确保均匀分布的关键点）
+<span class="nc bnc" id="L234" title="All 6 branches missed.">                    if (i % 3 == 0 &amp;&amp; rsrpValue &gt; -90 &amp;&amp; rsrpValue &lt; -70) {</span>
+<span class="nc" id="L235">                        keyPoints.add(data);</span>
+                    }
+                }
+            }
+        }
+
+        // 查找局部最大/最小值
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        for (int i = windowSize; i &lt; allData.size() - windowSize; i++) {</span>
+<span class="nc" id="L243">            TestData current = allData.get(i);</span>
+<span class="nc" id="L244">            Object currentValue = getDimensionValue(current, dimension);</span>
+<span class="nc bnc" id="L245" title="All 4 branches missed.">            if (currentValue == null || !(currentValue instanceof Number)) {</span>
+<span class="nc" id="L246">                continue;</span>
+            }
+
+<span class="nc" id="L249">            double value = ((Number) currentValue).doubleValue();</span>
+<span class="nc" id="L250">            boolean isLocalMax = true;</span>
+<span class="nc" id="L251">            boolean isLocalMin = true;</span>
+
+            // 检查是否为局部最大/最小值
+<span class="nc bnc" id="L254" title="All 2 branches missed.">            for (int j = i - windowSize; j &lt;= i + windowSize; j++) {</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">                if (j == i) continue;</span>
+
+<span class="nc" id="L257">                Object neighborValue = getDimensionValue(allData.get(j), dimension);</span>
+<span class="nc bnc" id="L258" title="All 4 branches missed.">                if (neighborValue == null || !(neighborValue instanceof Number)) {</span>
+<span class="nc" id="L259">                    continue;</span>
+                }
+
+<span class="nc" id="L262">                double nValue = ((Number) neighborValue).doubleValue();</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">                if (nValue &gt; value) isLocalMax = false;</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">                if (nValue &lt; value) isLocalMin = false;</span>
+
+<span class="nc bnc" id="L266" title="All 4 branches missed.">                if (!isLocalMax &amp;&amp; !isLocalMin) break;</span>
+            }
+
+<span class="nc bnc" id="L269" title="All 4 branches missed.">            if (isLocalMax || isLocalMin) {</span>
+<span class="nc" id="L270">                keyPoints.add(current);</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">                if (&quot;rsrp&quot;.equals(dimension)) {</span>
+<span class="nc" id="L272">                    log.debug(&quot;添加RSRP局部{}值: {}dBm, 时间: {}&quot;, </span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                        isLocalMax ? &quot;最大&quot; : &quot;最小&quot;, value, current.getTestTime());</span>
+                }
+            }
+        }
+
+        // 查找快速变化的点
+<span class="nc bnc" id="L279" title="All 2 branches missed.">        for (int i = 1; i &lt; allData.size() - 1; i++) {</span>
+<span class="nc" id="L280">            Object prevValue = getDimensionValue(allData.get(i-1), dimension);</span>
+<span class="nc" id="L281">            Object currentValue = getDimensionValue(allData.get(i), dimension);</span>
+<span class="nc" id="L282">            Object nextValue = getDimensionValue(allData.get(i+1), dimension);</span>
+
+<span class="nc bnc" id="L284" title="All 12 branches missed.">            if (prevValue == null || currentValue == null || nextValue == null ||</span>
+                !(prevValue instanceof Number) ||
+                !(currentValue instanceof Number) ||
+                !(nextValue instanceof Number)) {
+<span class="nc" id="L288">                continue;</span>
+            }
+
+<span class="nc" id="L291">            double prev = ((Number) prevValue).doubleValue();</span>
+<span class="nc" id="L292">            double current = ((Number) currentValue).doubleValue();</span>
+<span class="nc" id="L293">            double next = ((Number) nextValue).doubleValue();</span>
+
+            // 计算变化率（根据维度类型调整敏感度）
+<span class="nc" id="L296">            double thresholdRatio = 0.2; // 默认变化率阈值</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">            if (&quot;rsrp&quot;.equals(dimension)) {</span>
+                // RSRP范围通常在-140到-44dBm，需要更敏感的阈值
+                // 对于RSRP使用绝对变化值而不是相对变化率
+<span class="nc" id="L300">                double absDiff = Math.abs(current - prev);</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">                if (absDiff &gt;= 1.0) { // 如果RSRP变化大于等于1dBm，标记为关键点</span>
+<span class="nc" id="L302">                    keyPoints.add(allData.get(i));</span>
+<span class="nc" id="L303">                    log.debug(&quot;添加RSRP快速变化点: 从{}dBm到{}dBm (变化{}dBm), 时间: {}&quot;, </span>
+<span class="nc" id="L304">                        prev, current, absDiff, allData.get(i).getTestTime());</span>
+<span class="nc" id="L305">                    continue;</span>
+                }
+<span class="nc" id="L307">            } else {</span>
+                // 计算变化率
+<span class="nc" id="L309">                double ratePrev = Math.abs((current - prev) / Math.max(0.1, Math.abs(prev)));</span>
+<span class="nc" id="L310">                double rateNext = Math.abs((next - current) / Math.max(0.1, Math.abs(current)));</span>
+    
+                // 如果任一变化率超过阈值，认为是关键点
+<span class="nc bnc" id="L313" title="All 4 branches missed.">                if (ratePrev &gt; thresholdRatio || rateNext &gt; thresholdRatio) {</span>
+<span class="nc" id="L314">                    keyPoints.add(allData.get(i));</span>
+                }
+            }
+        }
+
+        // 对于RSRP维度，如果关键点太少，增加额外的采样点
+<span class="nc bnc" id="L320" title="All 4 branches missed.">        if (&quot;rsrp&quot;.equals(dimension) &amp;&amp; keyPoints.size() &lt; allData.size() / 10) {</span>
+<span class="nc" id="L321">            int additionalSamplingInterval = Math.max(1, allData.size() / 200);</span>
+<span class="nc" id="L322">            log.info(&quot;RSRP关键点数量不足，增加额外采样: 每{}个点取样&quot;, additionalSamplingInterval);</span>
+            
+<span class="nc bnc" id="L324" title="All 2 branches missed.">            for (int i = 0; i &lt; allData.size(); i += additionalSamplingInterval) {</span>
+<span class="nc" id="L325">                TestData data = allData.get(i);</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">                if (data.getRsrp() != null) {</span>
+<span class="nc" id="L327">                    keyPoints.add(data);</span>
+                }
+            }
+        }
+
+<span class="nc" id="L332">        return keyPoints.stream().distinct().collect(Collectors.toList());</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Map&lt;String, Object&gt; getRateDistribution(List&lt;Map&lt;String, Double&gt;&gt; customRanges) {
+        try {
+<span class="fc" id="L338">            log.info(&quot;开始获取速率分布数据&quot;);</span>
+
+<span class="fc" id="L340">            int pageSize = 1000;</span>
+<span class="fc" id="L341">            int currentPage = 0;</span>
+<span class="fc" id="L342">            List&lt;Double&gt; rates = new ArrayList&lt;&gt;();</span>
+
+            // 清除缓存，确保获取最新数据
+<span class="fc" id="L345">            log.info(&quot;清除缓存，确保获取最新速率数据&quot;);</span>
+
+            while (true) {
+                // 按创建时间降序排序，确保获取最新上传的数据
+<span class="fc" id="L349">                Page&lt;TestData&gt; page = testDataRepository.findAll(</span>
+<span class="fc" id="L350">                    PageRequest.of(currentPage, pageSize, Sort.by(&quot;createTime&quot;).descending())</span>
+                );
+
+<span class="fc" id="L353">                List&lt;Double&gt; pageRates = page.getContent().stream()</span>
+<span class="fc" id="L354">                    .map(TestData::getMacThroughput)</span>
+<span class="fc" id="L355">                    .filter(Objects::nonNull)</span>
+<span class="fc" id="L356">                    .collect(Collectors.toList());</span>
+
+<span class="fc" id="L358">                rates.addAll(pageRates);</span>
+<span class="fc" id="L359">                log.info(&quot;已获取 {} 条速率数据&quot;, rates.size());</span>
+
+<span class="pc bpc" id="L361" title="1 of 2 branches missed.">                if (!page.hasNext()) {</span>
+<span class="fc" id="L362">                    break;</span>
+                }
+<span class="nc" id="L364">                currentPage++;</span>
+
+                // 设置一个合理的上限以防数据量过大
+<span class="nc bnc" id="L367" title="All 2 branches missed.">                if (rates.size() &gt;= 10000) {</span>
+<span class="nc" id="L368">                    log.warn(&quot;数据量超过10000条，将只处理前10000条数据&quot;);</span>
+<span class="nc" id="L369">                    break;</span>
+                }
+<span class="nc" id="L371">            }</span>
+
+<span class="pc bpc" id="L373" title="1 of 2 branches missed.">            if (rates.isEmpty()) {</span>
+<span class="nc" id="L374">                Map&lt;String, Object&gt; emptyResult = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L375">                emptyResult.put(&quot;pieData&quot;, new ArrayList&lt;&gt;());</span>
+<span class="nc" id="L376">                return emptyResult;</span>
+            }
+
+            List&lt;Map&lt;String, Object&gt;&gt; pieData;
+<span class="pc bpc" id="L380" title="1 of 4 branches missed.">            if (customRanges != null &amp;&amp; !customRanges.isEmpty()) {</span>
+<span class="fc" id="L381">                pieData = calculateCustomRangeDistribution(rates, customRanges);</span>
+            } else {
+<span class="fc" id="L383">                pieData = calculateDefaultRangeDistribution(rates);</span>
+            }
+
+<span class="fc" id="L386">            Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L387">            result.put(&quot;pieData&quot;, pieData);</span>
+<span class="fc" id="L388">            return result;</span>
+<span class="nc" id="L389">        } catch (Exception e) {</span>
+<span class="nc" id="L390">            log.error(&quot;获取速率分布数据失败&quot;, e);</span>
+<span class="nc" id="L391">            throw new RuntimeException(&quot;获取速率分布数据失败: &quot; + e.getMessage(), e);</span>
+        }
+    }
+
+    private List&lt;Map&lt;String, Object&gt;&gt; calculateDefaultRangeDistribution(List&lt;Double&gt; rates) {
+        try {
+            // 使用与前端一致的固定速率区间
+<span class="fc" id="L398">            List&lt;Map&lt;String, Object&gt;&gt; pieData = new ArrayList&lt;&gt;();</span>
+
+            // 输出数据分布情况用于调试
+<span class="fc" id="L401">            log.info(&quot;速率数据总数: {}&quot;, rates.size());</span>
+<span class="fc" id="L402">            DoubleSummaryStatistics stats = rates.stream()</span>
+<span class="fc" id="L403">                .mapToDouble(Double::doubleValue)</span>
+<span class="fc" id="L404">                .summaryStatistics();</span>
+<span class="fc" id="L405">            log.info(&quot;速率数据统计: 最小值={}, 最大值={}, 平均值={}&quot;,</span>
+<span class="fc" id="L406">                stats.getMin(), stats.getMax(), stats.getAverage());</span>
+
+            // 定义固定的速率区间（与前端完全匹配）
+<span class="fc" id="L409">            List&lt;double[]&gt; fixedRanges = new ArrayList&lt;&gt;();</span>
+
+            // 当最大速率≤50Mbps时：每10Mbps一个区间
+<span class="fc" id="L412">            fixedRanges.add(new double[]{0, 10});      // 0.0-10.0 Mbps</span>
+<span class="fc" id="L413">            fixedRanges.add(new double[]{10, 20});     // 10.0-20.0 Mbps</span>
+<span class="fc" id="L414">            fixedRanges.add(new double[]{20, 30});     // 20.0-30.0 Mbps</span>
+<span class="fc" id="L415">            fixedRanges.add(new double[]{30, 40});     // 30.0-40.0 Mbps</span>
+<span class="fc" id="L416">            fixedRanges.add(new double[]{40, 50});     // 40.0-50.0 Mbps</span>
+
+            // 当最大速率在50-100Mbps之间：分两个区间
+<span class="fc" id="L419">            fixedRanges.add(new double[]{50, 75});     // 50.0-75.0 Mbps</span>
+<span class="fc" id="L420">            fixedRanges.add(new double[]{75, 100});    // 75.0-100.0 Mbps</span>
+
+            // 当最大速率在100-500Mbps之间：每50Mbps一个区间
+<span class="fc" id="L423">            fixedRanges.add(new double[]{100, 150});   // 100.0-150.0 Mbps</span>
+<span class="fc" id="L424">            fixedRanges.add(new double[]{150, 200});   // 150.0-200.0 Mbps</span>
+<span class="fc" id="L425">            fixedRanges.add(new double[]{200, 250});   // 200.0-250.0 Mbps</span>
+<span class="fc" id="L426">            fixedRanges.add(new double[]{250, 300});   // 250.0-300.0 Mbps</span>
+<span class="fc" id="L427">            fixedRanges.add(new double[]{300, 350});   // 300.0-350.0 Mbps</span>
+<span class="fc" id="L428">            fixedRanges.add(new double[]{350, 400});   // 350.0-400.0 Mbps</span>
+<span class="fc" id="L429">            fixedRanges.add(new double[]{400, 450});   // 400.0-450.0 Mbps</span>
+<span class="fc" id="L430">            fixedRanges.add(new double[]{450, 500});   // 450.0-500.0 Mbps</span>
+
+            // 当最大速率&gt;500Mbps时：每100Mbps一个区间
+<span class="fc" id="L433">            fixedRanges.add(new double[]{500, 600});   // 500.0-600.0 Mbps</span>
+<span class="fc" id="L434">            fixedRanges.add(new double[]{600, 700});   // 600.0-700.0 Mbps</span>
+<span class="fc" id="L435">            fixedRanges.add(new double[]{700, 800});   // 700.0-800.0 Mbps</span>
+<span class="fc" id="L436">            fixedRanges.add(new double[]{800, 900});   // 800.0-900.0 Mbps</span>
+<span class="fc" id="L437">            fixedRanges.add(new double[]{900, 1000});  // 900.0-1000.0 Mbps</span>
+<span class="fc" id="L438">            fixedRanges.add(new double[]{1000, Double.MAX_VALUE}); // 1000.0+ Mbps</span>
+
+            // 计算每个区间的数据占比
+<span class="fc bfc" id="L441" title="All 2 branches covered.">            for (double[] range : fixedRanges) {</span>
+                String label;
+<span class="fc bfc" id="L443" title="All 2 branches covered.">                if (range[1] == Double.MAX_VALUE) {</span>
+<span class="fc" id="L444">                    label = String.format(&quot;%.1f+ Mbps&quot;, range[0]);</span>
+                } else {
+<span class="fc" id="L446">                    label = String.format(&quot;%.1f-%.1f Mbps&quot;, range[0], range[1]);</span>
+                }
+
+<span class="fc" id="L449">                long count = rates.stream()</span>
+<span class="fc bfc" id="L450" title="All 4 branches covered.">                    .filter(rate -&gt; rate &gt;= range[0] &amp;&amp; rate &lt; range[1])</span>
+<span class="fc" id="L451">                    .count();</span>
+
+<span class="fc bfc" id="L453" title="All 2 branches covered.">                if (count &gt; 0) {</span>
+<span class="fc" id="L454">                    Map&lt;String, Object&gt; slice = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L455">                    slice.put(&quot;name&quot;, label);</span>
+<span class="fc" id="L456">                    slice.put(&quot;value&quot;, count * 100.0 / rates.size());</span>
+<span class="fc" id="L457">                    pieData.add(slice);</span>
+                }
+<span class="fc" id="L459">            }</span>
+
+<span class="fc" id="L461">            return pieData;</span>
+<span class="nc" id="L462">        } catch (Exception e) {</span>
+<span class="nc" id="L463">            log.error(&quot;计算默认速率区间分布失败&quot;, e);</span>
+<span class="nc" id="L464">            return new ArrayList&lt;&gt;();</span>
+        }
+    }
+
+    private List&lt;Map&lt;String, Object&gt;&gt; calculateCustomRangeDistribution(
+            List&lt;Double&gt; rates, List&lt;Map&lt;String, Double&gt;&gt; ranges) {
+        try {
+<span class="fc" id="L471">            List&lt;Map&lt;String, Object&gt;&gt; pieData = new ArrayList&lt;&gt;();</span>
+
+            // 输出数据分布情况用于调试
+<span class="fc" id="L474">            log.info(&quot;速率数据总数: {}&quot;, rates.size());</span>
+<span class="fc" id="L475">            DoubleSummaryStatistics stats = rates.stream()</span>
+<span class="fc" id="L476">                .mapToDouble(Double::doubleValue)</span>
+<span class="fc" id="L477">                .summaryStatistics();</span>
+<span class="fc" id="L478">            log.info(&quot;接收到自定义速率区间划分请求。速率数据统计: 最小值={}, 最大值={}, 平均值={}&quot;,</span>
+<span class="fc" id="L479">                stats.getMin(), stats.getMax(), stats.getAverage());</span>
+<span class="fc" id="L480">            log.info(&quot;自定义区间数量: {}&quot;, ranges.size());</span>
+
+<span class="fc bfc" id="L482" title="All 2 branches covered.">            for (Map&lt;String, Double&gt; range : ranges) {</span>
+                try {
+<span class="fc" id="L484">                    double min = range.get(&quot;min&quot;);</span>
+<span class="fc" id="L485">                    Double max = range.get(&quot;max&quot;);</span>
+
+                    // 格式化标签，处理无上限的情况
+                    String label;
+<span class="pc bpc" id="L489" title="1 of 2 branches missed.">                    if (max == null) {</span>
+<span class="nc" id="L490">                        label = String.format(&quot;%.1f+ Mbps&quot;, min);</span>
+<span class="nc" id="L491">                        log.info(&quot;处理无上限区间: {}&quot;, label);</span>
+                    } else {
+<span class="fc" id="L493">                        label = String.format(&quot;%.1f-%.1f Mbps&quot;, min, max);</span>
+                    }
+
+                    // 计算该区间内的数据数量
+                    long count;
+<span class="pc bpc" id="L498" title="1 of 2 branches missed.">                    if (max == null) {</span>
+                        // 无上限区间
+<span class="nc" id="L500">                        count = rates.stream()</span>
+<span class="nc bnc" id="L501" title="All 2 branches missed.">                            .filter(rate -&gt; rate &gt;= min)</span>
+<span class="nc" id="L502">                            .count();</span>
+                    } else {
+                        // 普通区间
+<span class="fc" id="L505">                        count = rates.stream()</span>
+<span class="fc bfc" id="L506" title="All 4 branches covered.">                            .filter(rate -&gt; rate &gt;= min &amp;&amp; rate &lt; max)</span>
+<span class="fc" id="L507">                            .count();</span>
+                    }
+
+                    // 计算百分比
+<span class="fc" id="L511">                    double percentage = count * 100.0 / rates.size();</span>
+<span class="fc" id="L512">                    log.info(&quot;区间 [{}]: 数量={}, 百分比={}%&quot;, label, count, percentage);</span>
+
+                    // 只有当区间内有数据时才添加到结果中
+<span class="pc bpc" id="L515" title="1 of 2 branches missed.">                    if (count &gt; 0) {</span>
+<span class="fc" id="L516">                        Map&lt;String, Object&gt; slice = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L517">                        slice.put(&quot;name&quot;, label);</span>
+<span class="fc" id="L518">                        slice.put(&quot;value&quot;, percentage);</span>
+<span class="fc" id="L519">                        pieData.add(slice);</span>
+                    }
+<span class="nc" id="L521">                } catch (Exception e) {</span>
+<span class="nc" id="L522">                    log.error(&quot;处理区间时出错&quot;, e);</span>
+<span class="fc" id="L523">                }</span>
+<span class="fc" id="L524">            }</span>
+
+<span class="fc" id="L526">            return pieData;</span>
+<span class="nc" id="L527">        } catch (Exception e) {</span>
+<span class="nc" id="L528">            log.error(&quot;计算自定义速率区间分布失败&quot;, e);</span>
+            // 出错时返回空列表而非抛出异常
+<span class="nc" id="L530">            return new ArrayList&lt;&gt;();</span>
+        }
+    }
+
+    /**
+     * 计算5G下行峰值速率公式
+     * @param mode 计算模式（FDD/TDD）
+     * @param frameType TDD模式下的帧结构类型
+     * @param bandwidth 系统带宽(MHz)
+     * @param dlSlots 下行时隙数
+     * @param specialSlots 特殊时隙数
+     * @param modulationOrder 调制阶数
+     * @param dlStreams DL流数
+     * @return 峰值速率(Gbit/s)
+     */
+    @Transactional
+    public double calculatePeakRate(String mode, String frameType, double bandwidth,
+                                    Integer dlSlots, Integer specialSlots, Integer modulationOrder, Integer dlStreams) {
+        try {
+            // --- Enhanced Parameter Validation ---
+<span class="pc bpc" id="L550" title="1 of 2 branches missed.">            if (bandwidth &lt;= 0) {</span>
+<span class="nc" id="L551">                throw new IllegalArgumentException(String.format(&quot;系统带宽 %.2f MHz 无效，必须大于 0 MHz&quot;, bandwidth));</span>
+            }
+<span class="pc bpc" id="L553" title="1 of 2 branches missed.">            if (bandwidth &gt; 1000) {</span>
+<span class="nc" id="L554">                throw new IllegalArgumentException(String.format(&quot;系统带宽 %.2f MHz 超出最大允许值 (1000 MHz)&quot;, bandwidth));</span>
+            }
+            
+<span class="pc bpc" id="L557" title="2 of 4 branches missed.">            if (dlSlots == null || dlSlots &lt;= 0) {</span>
+<span class="nc" id="L558">                throw new IllegalArgumentException(&quot;下行时隙数必须大于0且不能为空&quot;);</span>
+            }
+            // 根据计算模式设定dlSlots的合理上限 (示例值，可调整)
+<span class="fc bfc" id="L561" title="All 2 branches covered.">            int maxDlSlots = &quot;TDD&quot;.equals(mode) ? 14 : 40; // TDD通常基于14个符号，FDD基于更多周期内slot</span>
+<span class="pc bpc" id="L562" title="1 of 2 branches missed.">            if (dlSlots &gt; maxDlSlots) {</span>
+<span class="nc" id="L563">                 throw new IllegalArgumentException(String.format(&quot;%s模式下，下行时隙数 %d 超出合理上限 (%d)&quot;, mode, dlSlots, maxDlSlots));</span>
+            }
+            
+<span class="fc bfc" id="L566" title="All 2 branches covered.">            if (&quot;TDD&quot;.equals(mode)) {</span>
+<span class="pc bpc" id="L567" title="2 of 4 branches missed.">                if (frameType == null || frameType.isEmpty()) {</span>
+<span class="nc" id="L568">                    throw new IllegalArgumentException(&quot;TDD模式下必须指定帧结构类型&quot;);</span>
+                }
+<span class="pc bpc" id="L570" title="1 of 2 branches missed.">                if (specialSlots == null) {</span>
+<span class="nc" id="L571">                    throw new IllegalArgumentException(&quot;TDD模式下必须指定特殊时隙数&quot;);</span>
+                }
+<span class="pc bpc" id="L573" title="1 of 2 branches missed.">                if (specialSlots &lt; 0) {</span>
+<span class="nc" id="L574">                    throw new IllegalArgumentException(&quot;TDD模式下，特殊时隙数不能为负&quot;);</span>
+                }
+<span class="pc bpc" id="L576" title="1 of 2 branches missed.">                if (dlSlots + specialSlots &gt; 14) {</span>
+<span class="nc" id="L577">                    throw new IllegalArgumentException(String.format(&quot;TDD模式下，下行时隙数 (%d) 与特殊时隙数 (%d) 之和不能超过14&quot;, dlSlots, specialSlots));</span>
+                }
+            }
+            
+            // 默认值设置 - modulationOrder 和 dlStreams 如果为null，则使用默认值
+<span class="pc bpc" id="L582" title="1 of 2 branches missed.">            int currentModulationOrder = (modulationOrder != null) ? modulationOrder : 8; // 默认256QAM (8)</span>
+<span class="pc bpc" id="L583" title="1 of 2 branches missed.">            int currentDlStreams = (dlStreams != null) ? dlStreams : 4;       // 默认4条流</span>
+            
+            // 调制阶数验证 (基于传递或默认的值)
+            // 有效的调制阶数值通常是 2, 4, 6, 8
+<span class="fc" id="L587">            List&lt;Integer&gt; validModOrders = Arrays.asList(2, 4, 6, 8);</span>
+<span class="pc bpc" id="L588" title="1 of 2 branches missed.">            if (!validModOrders.contains(currentModulationOrder)) {</span>
+<span class="nc" id="L589">                throw new IllegalArgumentException(String.format(&quot;调制阶数 %d 无效，有效值应为 2, 4, 6, 或 8&quot;, currentModulationOrder));</span>
+            }
+            
+            // DL流数验证 (基于传递或默认的值)
+            // 常见的DL流数是 1, 2, 4, 8
+<span class="pc bpc" id="L594" title="2 of 4 branches missed.">            if (currentDlStreams &lt;= 0 || currentDlStreams &gt; 8) { // 假设最大为8层</span>
+<span class="nc" id="L595">                throw new IllegalArgumentException(String.format(&quot;DL流数 %d 超出有效范围 (1-8)&quot;, currentDlStreams));</span>
+            }
+            // 对较大的DL流数发出警告但继续计算 - 这部分逻辑可以保留或移除，如果严格限制在1-8
+            // if (currentDlStreams &gt; 4 &amp;&amp; currentDlStreams &lt;=8) { // 例如，超过4层时给个警告
+            //     log.warn(&quot;DL流数({})较高，请确认设备支持&quot;, currentDlStreams);
+            // }
+
+            // 固定参数
+<span class="fc" id="L603">            final int SCS = 30; // 子载波间隔，单位：kHz</span>
+<span class="fc" id="L604">            final int GUARD_INTERVAL = 845; // 恢复原始的保护间隔值</span>
+<span class="fc" id="L605">            final double CODING_EFFICIENCY = 0.925; // 编码效率</span>
+
+            // 计算PRB (Physical Resource Block)
+<span class="fc" id="L608">            int PRB = (int) Math.floor((bandwidth * 1000 - 2 * GUARD_INTERVAL) / (12 * SCS));</span>
+            
+            // PRB验证
+<span class="pc bpc" id="L611" title="1 of 2 branches missed.">            if (PRB &lt;= 0) {</span>
+<span class="nc" id="L612">                throw new IllegalArgumentException(&quot;计算得到的PRB数为0或负数，请检查带宽参数&quot;);</span>
+            }
+
+            // 计算RE (Resource Element)
+<span class="fc" id="L616">            int RE = 12 * (14 - 1);</span>
+
+            // 计算Nifo
+<span class="fc" id="L619">            double Nifo = Math.floor(RE * PRB * currentModulationOrder * currentDlStreams * CODING_EFFICIENCY);</span>
+<span class="fc" id="L620">            log.debug(&quot;峰值速率计算 - RE={}, PRB={}, 调制阶数={}, 层数={}, 编码效率={}, Nifo={}&quot;,</span>
+<span class="fc" id="L621">                     RE, PRB, currentModulationOrder, currentDlStreams, CODING_EFFICIENCY, Nifo);</span>
+            
+            // Nifo01 计算逻辑 (更紧凑形式)
+            // 1. 计算 n = int(log2(Nifo - 24)) - 5
+<span class="fc" id="L625">            double n_val = Math.floor(Math.log(Nifo - 24.0) / Math.log(2.0)) - 5.0;</span>
+            
+            // 2. 计算 2^n 
+<span class="fc" id="L628">            double power_of_2_n = Math.pow(2, n_val);</span>
+            
+            // 3. 计算用于 MAX 比较的项: (2^n) * int((Nifo - 24) / (2^n))
+            double term_for_max;
+<span class="pc bpc" id="L632" title="1 of 2 branches missed.">            if (power_of_2_n == 0.0) { // 保持对 2^n == 0 的检查</span>
+<span class="nc" id="L633">                term_for_max = 0.0;</span>
+            } else {
+<span class="fc" id="L635">                term_for_max = power_of_2_n * Math.floor((Nifo - 24.0) / power_of_2_n);</span>
+            }
+            
+            // 4. Nifo01 = MAX(3840, term_for_max)
+<span class="fc" id="L639">            double Nifo01 = Math.max(3840.0, term_for_max);</span>
+            
+            // 计算TBS = 8 * 调制阶数 * floor((Nifo01 + 24)/(8 * 调制阶数))
+<span class="fc" id="L642">            double TBS = 8 * currentModulationOrder * Math.floor((Nifo01 + 24) / (8 * currentModulationOrder));</span>
+<span class="fc" id="L643">            log.debug(&quot;峰值速率计算 - TBS计算: Nifo01={}, modulationOrder={}, TBS={}&quot;, </span>
+<span class="fc" id="L644">                    Nifo01, currentModulationOrder, TBS);</span>
+
+            double result;
+
+            // 根据模式计算最终速率
+<span class="fc bfc" id="L649" title="All 2 branches covered.">            if (&quot;FDD&quot;.equals(mode)) {</span>
+                // FDD模式，固定周期为10ms
+<span class="fc" id="L651">                double period = 10.0;</span>
+<span class="fc" id="L652">                result = (TBS * (dlSlots * 1000) / period) / Math.pow(10, 9);</span>
+<span class="fc" id="L653">            } else {</span>
+                // TDD模式，周期根据帧结构类型确定
+<span class="fc" id="L655">                double period = getTDDFramePeriod(frameType);</span>
+
+                // 对于TDD，需要考虑特殊时隙
+<span class="pc bpc" id="L658" title="1 of 2 branches missed.">                int specialSlotsValue = specialSlots != null ? specialSlots : 0;</span>
+
+                // 特殊处理FRAME5，当特殊时隙为1时
+<span class="pc bpc" id="L661" title="3 of 4 branches missed.">                if (&quot;FRAME5&quot;.equals(frameType) &amp;&amp; specialSlotsValue == 1) {</span>
+                    // 帧结构5且特殊时隙为1时，类似FDD模式处理
+<span class="nc" id="L663">                    result = (TBS * (dlSlots * 1000) / period) / Math.pow(10, 9);</span>
+<span class="nc" id="L664">                    log.info(&quot;帧结构5(1ms)特殊时隙为1，仅计算下行时隙部分&quot;);</span>
+                } else {
+                    // 计算公式适当调整，考虑特殊时隙
+<span class="fc" id="L667">                    result = (TBS * ((dlSlots + specialSlotsValue) * 1000) / period) / Math.pow(10, 9);</span>
+                }
+            }
+
+
+            // 记录计算过程和结果日志
+<span class="fc" id="L673">            log.info(&quot;峰值速率计算: mode={}, frameType={}, bandwidth={}, dlSlots={}, specialSlots={}, &quot; +</span>
+                     &quot;modulationOrder={}, dlStreams={}, PRB={}, TBS={}, 结果={} Gbps&quot;,
+<span class="fc" id="L675">                     mode, frameType, bandwidth, dlSlots, specialSlots, currentModulationOrder, currentDlStreams, PRB, TBS, result);</span>
+
+<span class="fc" id="L677">            return result;</span>
+<span class="fc" id="L678">        } catch (Exception e) {</span>
+<span class="fc" id="L679">            log.error(&quot;峰值速率计算失败: {}&quot;, e.getMessage(), e);</span>
+<span class="fc" id="L680">            throw new RuntimeException(&quot;峰值速率计算失败: &quot; + e.getMessage(), e);</span>
+        }
+    }
+
+
+
+
+    /**
+     * 获取TDD帧结构的周期（ms）
+     * 对应关系如下：
+     *   帧结构1（2ms）：2
+     *   帧结构2（2.5ms）：2.5
+     *   帧结构3（2.5ms双）：5
+     *   帧结构4（5ms）：5
+     *   帧结构5（1ms）：1
+     *   FDD：10（在其它方法中直接写死）
+     */
+    private double getTDDFramePeriod(String frameType) {
+<span class="fc" id="L698">        log.info(&quot;获取TDD帧结构周期，frameType={}&quot;, frameType);</span>
+<span class="pc bpc" id="L699" title="5 of 6 branches missed.">        return switch (frameType) {</span>
+<span class="fc" id="L700">            case &quot;FRAME1&quot; -&gt; 2.0;    // 帧结构1（2ms）</span>
+<span class="nc" id="L701">            case &quot;FRAME2&quot; -&gt; 2.5;    // 帧结构2（2.5ms）</span>
+<span class="nc" id="L702">            case &quot;FRAME3&quot; -&gt; 5.0;    // 帧结构3（2.5ms双）</span>
+<span class="nc" id="L703">            case &quot;FRAME4&quot; -&gt; 5.0;    // 帧结构4（5ms）</span>
+<span class="nc" id="L704">            case &quot;FRAME5&quot; -&gt; 1.0;    // 帧结构5（1ms）</span>
+<span class="nc" id="L705">            default -&gt; throw new IllegalArgumentException(&quot;不支持的帧结构类型: &quot; + frameType);</span>
+        };
+    }
+
+    private Object getDimensionValue(TestData data, String dimension) {
+<span class="pc bpc" id="L710" title="6 of 8 branches missed.">        return switch (dimension) {</span>
+<span class="fc" id="L711">            case &quot;rsrp&quot; -&gt; data.getRsrp();</span>
+<span class="fc" id="L712">            case &quot;sinr&quot; -&gt; data.getSinr();</span>
+<span class="nc" id="L713">            case &quot;macThroughput&quot; -&gt; data.getMacThroughput();</span>
+<span class="nc" id="L714">            case &quot;rank&quot; -&gt; data.getRank();</span>
+<span class="nc" id="L715">            case &quot;mcs&quot; -&gt; data.getMcs(); </span>
+<span class="nc" id="L716">            case &quot;prbNum&quot; -&gt; data.getPrbNum(); // 使用新的字段名</span>
+<span class="nc" id="L717">            case &quot;bler&quot; -&gt; correctBlerValue(data); // 使用修正方法获取BLER值</span>
+<span class="nc" id="L718">            default -&gt; throw new IllegalArgumentException(&quot;未知的维度: &quot; + dimension);</span>
+        };
+    }
+
+    /**
+     * 返回数据库中的BLER值
+     * 确保返回正确的值以便前端显示
+     */
+    private Double correctBlerValue(TestData data) {
+        // 直接返回数据库中的BLER值
+<span class="nc bnc" id="L728" title="All 2 branches missed.">        if (data.getBler() != null) {</span>
+            // 确保值非负且非零（避免显示为0.0000%）
+<span class="nc" id="L730">            double blerValue = Math.max(0, data.getBler());</span>
+            // 如果BLER值非常接近零，返回一个小的非零值以确保可见
+<span class="nc bnc" id="L732" title="All 4 branches missed.">            if (blerValue &lt; 0.0001 &amp;&amp; blerValue &gt; 0) {</span>
+<span class="nc" id="L733">                return 0.0001; // 设置最小值为0.0001%</span>
+            }
+<span class="nc" id="L735">            return blerValue;</span>
+        }
+<span class="nc" id="L737">        return null; // 如果没有有效值，则返回空</span>
+    }
+
+    /**
+     * 这些方法在现有系统中不再需要，直接使用TestData进行处理
+     * 如果有调用这些方法的地方，返回空数据或直接使用TestData数据
+     */
+    @Cacheable(value = &quot;timeSeriesData&quot;, key = &quot;#fileName + '_' + #startTime + '_' + #endTime&quot;)
+    @Transactional(readOnly = true)
+    public List&lt;Map&lt;String, Object&gt;&gt; getTimeSeriesDataCache(String fileName, Integer startTime, Integer endTime) {
+<span class="nc" id="L747">        log.warn(&quot;调用了未实现的getTimeSeriesDataCache方法，返回空列表&quot;);</span>
+<span class="nc" id="L748">        return Collections.emptyList();</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Stream&lt;Map&lt;String, Object&gt;&gt; getTimeSeriesDataStream(String fileName, Integer startTime, Integer endTime) {
+<span class="nc" id="L753">        log.warn(&quot;调用了未实现的getTimeSeriesDataStream方法，返回空流&quot;);</span>
+<span class="nc" id="L754">        return Stream.empty();</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Map&lt;String, Object&gt; getRateDistribution(String fileName, Integer startTime, Integer endTime, Integer rangeCount) {
+        try {
+            // 使用TestData代替TimeSeriesData，直接获取MAC吞吐量数据
+<span class="nc" id="L761">            List&lt;Double&gt; rates = testDataRepository.findAll().stream()</span>
+<span class="nc" id="L762">                .map(TestData::getMacThroughput)</span>
+<span class="nc" id="L763">                .filter(Objects::nonNull)</span>
+<span class="nc" id="L764">                .collect(Collectors.toList());</span>
+
+<span class="nc bnc" id="L766" title="All 2 branches missed.">            if (rates.isEmpty()) {</span>
+<span class="nc" id="L767">                return Map.of(</span>
+<span class="nc" id="L768">                    &quot;distribution&quot;, Collections.emptyMap(),</span>
+<span class="nc" id="L769">                    &quot;min&quot;, 0.0,</span>
+<span class="nc" id="L770">                    &quot;max&quot;, 0.0,</span>
+<span class="nc" id="L771">                    &quot;count&quot;, 0</span>
+                );
+            }
+
+<span class="nc" id="L775">            DoubleSummaryStatistics stats = rates.stream()</span>
+<span class="nc" id="L776">                .mapToDouble(Double::doubleValue)</span>
+<span class="nc" id="L777">                .summaryStatistics();</span>
+
+<span class="nc" id="L779">            double min = stats.getMin();</span>
+<span class="nc" id="L780">            double max = stats.getMax();</span>
+<span class="nc bnc" id="L781" title="All 2 branches missed.">            int actualRangeCount = rangeCount != null ? rangeCount : 10;</span>
+<span class="nc" id="L782">            double interval = (max - min) / actualRangeCount;</span>
+
+            // 使用TreeMap保持区间顺序
+<span class="nc" id="L785">            Map&lt;String, Integer&gt; distribution = new TreeMap&lt;&gt;();</span>
+<span class="nc bnc" id="L786" title="All 2 branches missed.">            for (int i = 0; i &lt; actualRangeCount; i++) {</span>
+<span class="nc" id="L787">                double rangeStart = min + i * interval;</span>
+<span class="nc" id="L788">                double rangeEnd = rangeStart + interval;</span>
+<span class="nc" id="L789">                distribution.put(String.format(&quot;%.2f-%.2f&quot;, rangeStart, rangeEnd), 0);</span>
+            }
+
+            // 优化计数过程
+<span class="nc bnc" id="L793" title="All 2 branches missed.">            for (Double rate : rates) {</span>
+<span class="nc bnc" id="L794" title="All 2 branches missed.">                if (rate != null) {</span>
+<span class="nc" id="L795">                    int index = (int) ((rate - min) / interval);</span>
+<span class="nc bnc" id="L796" title="All 2 branches missed.">                    if (index == actualRangeCount) index--;</span>
+<span class="nc" id="L797">                    String range = String.format(&quot;%.2f-%.2f&quot;,</span>
+<span class="nc" id="L798">                        min + index * interval,</span>
+<span class="nc" id="L799">                        min + (index + 1) * interval);</span>
+<span class="nc" id="L800">                    distribution.merge(range, 1, Integer::sum);</span>
+                }
+<span class="nc" id="L802">            }</span>
+
+<span class="nc" id="L804">            return Map.of(</span>
+                &quot;distribution&quot;, distribution,
+<span class="nc" id="L806">                &quot;min&quot;, min,</span>
+<span class="nc" id="L807">                &quot;max&quot;, max,</span>
+<span class="nc" id="L808">                &quot;count&quot;, rates.size()</span>
+            );
+<span class="nc" id="L810">        } catch (Exception e) {</span>
+<span class="nc" id="L811">            log.error(&quot;计算速率分布失败&quot;, e);</span>
+<span class="nc" id="L812">            throw new RuntimeException(&quot;计算速率分布失败&quot;, e);</span>
+        }
+    }
+
+    /**
+     * 计算理论速率并与MAC层速率对比
+     * @param mode 计算模式（FDD/TDD）
+     * @param frameType TDD模式下的帧结构类型
+     * @param dlSlots 下行时隙数
+     * @param specialSlots 特殊时隙数
+     * @return 理论速率和MAC层实际速率的对比数据
+     */
+    @Transactional(readOnly = true)
+    public Map&lt;String, Object&gt; calculateRateComparison(String mode, String frameType,
+                                                     Integer dlSlots, Integer specialSlots) {
+        try {
+<span class="nc" id="L828">            log.info(&quot;开始速率对比分析: mode={}, frameType={}, dlSlots={}, specialSlots={}&quot;,</span>
+                    mode, frameType, dlSlots, specialSlots);
+
+            // 获取测试数据，按时间升序排序
+<span class="nc" id="L832">            List&lt;TestData&gt; allData = testDataRepository.findAll(Sort.by(&quot;testTime&quot;).ascending())</span>
+<span class="nc" id="L833">                    .stream()</span>
+<span class="nc" id="L834">                    .limit(2000) // 限制最多处理2000条数据</span>
+<span class="nc" id="L835">                    .collect(Collectors.toList());</span>
+
+<span class="nc" id="L837">            log.info(&quot;速率对比分析：从数据库获取到 {} 条数据记录&quot;, allData.size());</span>
+
+<span class="nc bnc" id="L839" title="All 2 branches missed.">            if (allData.isEmpty()) {</span>
+<span class="nc" id="L840">                log.warn(&quot;没有找到测试数据，无法进行速率对比分析&quot;);</span>
+<span class="nc" id="L841">                return Map.of(</span>
+<span class="nc" id="L842">                    &quot;timePoints&quot;, Collections.emptyList(),</span>
+<span class="nc" id="L843">                    &quot;macRates&quot;, Collections.emptyList(),</span>
+<span class="nc" id="L844">                    &quot;theoreticalRates&quot;, Collections.emptyList()</span>
+                );
+            }
+
+            // 获取周期值
+            double period;
+<span class="nc bnc" id="L850" title="All 2 branches missed.">            if (&quot;FDD&quot;.equals(mode)) {</span>
+<span class="nc" id="L851">                period = 10.0; // FDD模式固定为10ms</span>
+            } else {
+<span class="nc" id="L853">                period = getTDDFramePeriod(frameType);</span>
+            }
+
+<span class="nc" id="L856">            log.info(&quot;速率对比分析: 周期={}ms, 帧结构={}, 下行时隙={}, 特殊时隙={}&quot;, </span>
+<span class="nc" id="L857">                period, frameType, dlSlots, specialSlots);</span>
+
+            // 为每个数据点计算理论速率
+<span class="nc" id="L860">            List&lt;String&gt; timePoints = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L861">            List&lt;Double&gt; macRates = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L862">            List&lt;Double&gt; theoreticalRates = new ArrayList&lt;&gt;();</span>
+            
+<span class="nc" id="L864">            int validPointCount = 0; // 统计有效数据点数量</span>
+<span class="nc" id="L865">            double maxMacRate = 0.0; // 记录最大MAC速率</span>
+<span class="nc" id="L866">            double maxTheoRate = 0.0; // 记录最大理论速率</span>
+
+            // 采样处理
+<span class="nc bnc" id="L869" title="All 2 branches missed.">            int samplingInterval = allData.size() &gt; 600 ? allData.size() / 600 : 1;</span>
+<span class="nc" id="L870">            log.info(&quot;数据点总数: {}, 采样间隔: {}&quot;, allData.size(), samplingInterval);</span>
+
+            // 跟踪最后一次有效的参数值
+<span class="nc" id="L873">            int lastValidModulationOrder = 4; // 默认16QAM</span>
+<span class="nc" id="L874">            int lastValidRank = 2; // 默认2层</span>
+<span class="nc" id="L875">            int lastValidPrb = 25; // 默认25个PRB</span>
+
+<span class="nc bnc" id="L877" title="All 2 branches missed.">            for (int i = 0; i &lt; allData.size(); i += samplingInterval) {</span>
+<span class="nc" id="L878">                TestData data = allData.get(i);</span>
+                
+                // 获取MAC层速率
+<span class="nc bnc" id="L881" title="All 2 branches missed.">                Double macRate = data.getMacThroughput() != null ? data.getMacThroughput() : 0.0;</span>
+                
+                // 更新最大MAC速率
+<span class="nc bnc" id="L884" title="All 2 branches missed.">                if (macRate &gt; maxMacRate) {</span>
+<span class="nc" id="L885">                    maxMacRate = macRate;</span>
+                }
+                
+                // 获取当前数据点的实际参数
+<span class="nc" id="L889">                Double mcs = data.getMcs();</span>
+<span class="nc" id="L890">                Integer rank = data.getRank();</span>
+<span class="nc" id="L891">                Integer prb = data.getPrbNum();</span>
+                
+                // 日志记录原始数据
+<span class="nc" id="L894">                log.debug(&quot;数据点 #{}: 时间={}, MCS={}, 层数={}, PRB={}, MAC速率={}&quot;,</span>
+<span class="nc" id="L895">                    i, data.getTestTime(), mcs, rank, prb, macRate);</span>
+                
+                // 使用实际参数计算理论速率
+<span class="nc" id="L898">                double theoreticalRate = 0.0;</span>
+                
+                try {
+                    // 从MCS映射获取调制阶数
+<span class="nc bnc" id="L902" title="All 2 branches missed.">                    int currModulationOrder = (mcs != null) ? mapMcsToModulationOrder(mcs) : lastValidModulationOrder;</span>
+                    
+                    // 获取当前数据点的层数
+<span class="nc bnc" id="L905" title="All 4 branches missed.">                    int currRank = (rank != null &amp;&amp; rank &gt; 0) ? rank : lastValidRank;</span>
+                    
+                    // 获取当前数据点的PRB数
+<span class="nc bnc" id="L908" title="All 4 branches missed.">                    int currPrb = (prb != null &amp;&amp; prb &gt; 0) ? prb : lastValidPrb;</span>
+                    
+                    // 更新最后一次有效的参数值
+<span class="nc bnc" id="L911" title="All 2 branches missed.">                    if (mcs != null) lastValidModulationOrder = currModulationOrder;</span>
+<span class="nc bnc" id="L912" title="All 4 branches missed.">                    if (rank != null &amp;&amp; rank &gt; 0) lastValidRank = currRank;</span>
+<span class="nc bnc" id="L913" title="All 4 branches missed.">                    if (prb != null &amp;&amp; prb &gt; 0) lastValidPrb = currPrb;</span>
+                    
+                    // 使用实际参数计算理论速率
+<span class="nc" id="L916">                    theoreticalRate = calculateComparisonRate(</span>
+                        currModulationOrder, currRank, currPrb,
+<span class="nc" id="L918">                        mode, frameType, dlSlots, specialSlots, period);</span>
+                    
+<span class="nc" id="L920">                    validPointCount++;</span>
+                    
+                    // 更新最大理论速率
+<span class="nc bnc" id="L923" title="All 2 branches missed.">                    if (theoreticalRate &gt; maxTheoRate) {</span>
+<span class="nc" id="L924">                        maxTheoRate = theoreticalRate;</span>
+                    }
+                    
+                    // 记录理论值与实际MAC层速率的比较结果
+<span class="nc bnc" id="L928" title="All 4 branches missed.">                    if (theoreticalRate &lt; macRate &amp;&amp; macRate &gt; 0) {</span>
+<span class="nc" id="L929">                        log.warn(&quot;数据点 #{}: 理论值({})低于MAC实际值({}), 差值: {} Mbps&quot;, </span>
+<span class="nc" id="L930">                               i, theoreticalRate, macRate, (macRate - theoreticalRate));</span>
+                    }
+                        
+<span class="nc" id="L933">                } catch (Exception e) {</span>
+<span class="nc" id="L934">                    log.error(&quot;计算理论速率出错: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L935">                    theoreticalRate = 0.0;</span>
+<span class="nc" id="L936">                }</span>
+                
+                // 添加到结果集
+<span class="nc" id="L939">                timePoints.add(data.getTestTime().format(DateTimeFormatter.ofPattern(&quot;HH:mm:ss.SSS&quot;)));</span>
+<span class="nc" id="L940">                macRates.add(macRate);</span>
+<span class="nc" id="L941">                theoreticalRates.add(theoreticalRate);</span>
+            }
+            
+            // 确保包含最后一个点
+<span class="nc bnc" id="L945" title="All 4 branches missed.">            if (!allData.isEmpty() &amp;&amp; (allData.size() - 1) % samplingInterval != 0) {</span>
+<span class="nc" id="L946">                TestData lastData = allData.get(allData.size() - 1);</span>
+                
+<span class="nc bnc" id="L948" title="All 2 branches missed.">                Double lastMacRate = lastData.getMacThroughput() != null ? lastData.getMacThroughput() : 0.0;</span>
+<span class="nc" id="L949">                Double lastMcs = lastData.getMcs();</span>
+<span class="nc" id="L950">                Integer lastRank = lastData.getRank();</span>
+<span class="nc" id="L951">                Integer lastPrb = lastData.getPrbNum();</span>
+                
+<span class="nc" id="L953">                log.debug(&quot;处理最后一个数据点: 时间={}, MCS={}, 层数={}, PRB={}, MAC速率={}&quot;,</span>
+<span class="nc" id="L954">                    lastData.getTestTime(), lastMcs, lastRank, lastPrb, lastMacRate);</span>
+                
+<span class="nc" id="L956">                double lastTheoreticalRate = 0.0;</span>
+                try {
+                    // 使用最后一个数据点的实际参数
+<span class="nc bnc" id="L959" title="All 2 branches missed.">                    int currModulationOrder = (lastMcs != null) ? mapMcsToModulationOrder(lastMcs) : lastValidModulationOrder;</span>
+<span class="nc bnc" id="L960" title="All 4 branches missed.">                    int currRank = (lastRank != null &amp;&amp; lastRank &gt; 0) ? lastRank : lastValidRank;</span>
+<span class="nc bnc" id="L961" title="All 4 branches missed.">                    int currPrb = (lastPrb != null &amp;&amp; lastPrb &gt; 0) ? lastPrb : lastValidPrb;</span>
+                    
+<span class="nc" id="L963">                    lastTheoreticalRate = calculateComparisonRate(</span>
+                        currModulationOrder, currRank, currPrb,
+<span class="nc" id="L965">                        mode, frameType, dlSlots, specialSlots, period);</span>
+                        
+<span class="nc bnc" id="L967" title="All 4 branches missed.">                    if (lastTheoreticalRate &lt; lastMacRate &amp;&amp; lastMacRate &gt; 0) {</span>
+<span class="nc" id="L968">                        log.warn(&quot;最后数据点: 理论值({})低于MAC实际值({}), 差值: {} Mbps&quot;, </span>
+<span class="nc" id="L969">                               lastTheoreticalRate, lastMacRate, (lastMacRate - lastTheoreticalRate));</span>
+                    }
+<span class="nc" id="L971">                } catch (Exception e) {</span>
+<span class="nc" id="L972">                    log.error(&quot;计算最后一个点理论速率出错: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L973">                }</span>
+                
+<span class="nc" id="L975">                timePoints.add(lastData.getTestTime().format(DateTimeFormatter.ofPattern(&quot;HH:mm:ss.SSS&quot;)));</span>
+<span class="nc" id="L976">                macRates.add(lastMacRate);</span>
+<span class="nc" id="L977">                theoreticalRates.add(lastTheoreticalRate);</span>
+            }
+            
+            // 如果所有理论速率都是0，记录警告
+<span class="nc bnc" id="L981" title="All 4 branches missed.">            if (theoreticalRates.stream().allMatch(rate -&gt; rate == 0.0)) {</span>
+<span class="nc" id="L982">                log.warn(&quot;所有计算的理论速率为0，可能是参数设置或测量数据有问题&quot;);</span>
+            }
+            
+<span class="nc" id="L985">            log.info(&quot;速率对比分析完成，共处理{}个有效数据点，有效计算点{}个&quot;, timePoints.size(), validPointCount);</span>
+<span class="nc" id="L986">            log.info(&quot;MAC速率范围: {}到{} Mbps&quot;, </span>
+<span class="nc" id="L987">                    macRates.stream().mapToDouble(Double::doubleValue).min().orElse(0),</span>
+<span class="nc" id="L988">                    macRates.stream().mapToDouble(Double::doubleValue).max().orElse(0));</span>
+<span class="nc" id="L989">            log.info(&quot;理论速率范围: {}到{} Mbps&quot;, </span>
+<span class="nc" id="L990">                    theoreticalRates.stream().mapToDouble(Double::doubleValue).min().orElse(0),</span>
+<span class="nc" id="L991">                    theoreticalRates.stream().mapToDouble(Double::doubleValue).max().orElse(0));</span>
+
+            // 返回结果
+<span class="nc" id="L994">            Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L995">            result.put(&quot;timePoints&quot;, timePoints);</span>
+<span class="nc" id="L996">            result.put(&quot;macRates&quot;, macRates);</span>
+<span class="nc" id="L997">            result.put(&quot;theoreticalRates&quot;, theoreticalRates);</span>
+<span class="nc" id="L998">            result.put(&quot;parameters&quot;, Map.of(</span>
+                &quot;mode&quot;, mode,
+<span class="nc bnc" id="L1000" title="All 2 branches missed.">                &quot;frameType&quot;, frameType != null ? frameType : &quot;&quot;,</span>
+                &quot;dlSlots&quot;, dlSlots,
+<span class="nc bnc" id="L1002" title="All 2 branches missed.">                &quot;specialSlots&quot;, specialSlots != null ? specialSlots : 0</span>
+            ));
+
+<span class="nc" id="L1005">            return result;</span>
+<span class="nc" id="L1006">        } catch (Exception e) {</span>
+<span class="nc" id="L1007">            log.error(&quot;速率对比分析失败&quot;, e);</span>
+<span class="nc" id="L1008">            throw new RuntimeException(&quot;速率对比分析失败: &quot; + e.getMessage(), e);</span>
+        }
+    }
+    
+    /**
+     * 速率对比分析专用的理论速率计算方法
+     * 注意：此方法专门为速率对比分析设计，与峰值速率计算模块分开
+     */
+    private double calculateComparisonRate(int modulationOrder, int dlStreams, int prb,
+                                           String mode, String frameType,
+                                           int dlSlots, Integer specialSlots, double period) {
+        try {
+<span class="nc" id="L1020">            log.info(&quot;速率对比分析 - 理论速率参数: modulationOrder={}, dlStreams={}, prb={}, mode={}, frameType={}, dlSlots={}, specialSlots={}, period={}&quot;,</span>
+<span class="nc" id="L1021">                     modulationOrder, dlStreams, prb, mode, frameType, dlSlots, specialSlots, period);</span>
+            
+            // 参数校验 - 使用原始值，不做任何修改
+<span class="nc bnc" id="L1024" title="All 8 branches missed.">            if (modulationOrder &lt;= 0 || dlStreams &lt;= 0 || prb &lt;= 0 || dlSlots &lt;= 0) {</span>
+<span class="nc" id="L1025">                log.warn(&quot;速率对比分析 - 参数存在非法值: modulationOrder={}, dlStreams={}, prb={}, dlSlots={}&quot;,</span>
+<span class="nc" id="L1026">                         modulationOrder, dlStreams, prb, dlSlots);</span>
+<span class="nc" id="L1027">                return 0.0; // 参数无效返回0.0</span>
+            }
+
+            // --- 理论速率计算 - 严格按照标准公式 ---
+<span class="nc" id="L1031">            final double CODING_EFFICIENCY = 0.925; // 编码效率近似值</span>
+<span class="nc" id="L1032">            int RE = 12 * (14 - 1); // 每个PRB每个时隙的RE数（考虑1个符号的开销）</span>
+            
+            // 计算Nifo = RE * PRB * 调制阶数 * DL流数 * 编码效率
+<span class="nc" id="L1035">            double Nifo = Math.floor(RE * prb * modulationOrder * dlStreams * CODING_EFFICIENCY);</span>
+            
+            // Nifo01 计算逻辑 (更紧凑形式)
+            // 1. 计算 n = int(log2(Nifo - 24)) - 5
+<span class="nc" id="L1039">            double n = Math.floor(Math.log(Nifo - 24.0) / Math.log(2.0)) - 5.0;</span>
+            
+            // 2. 计算 2^n 
+<span class="nc" id="L1042">            double powern = Math.pow(2, n);</span>
+            
+            // 3. 计算用于 MAX 比较的项: (2^n) * int((Nifo - 24) / (2^n))
+            double term_for_max;
+<span class="nc bnc" id="L1046" title="All 2 branches missed.">            if (powern == 0.0) { // 保持对 2^n == 0 的检查</span>
+<span class="nc" id="L1047">                term_for_max = 0.0;</span>
+            } else {
+<span class="nc" id="L1049">                term_for_max = powern * Math.floor((Nifo - 24.0) / powern);</span>
+            }
+            
+            // 4. Nifo01 = MAX(3840, term_for_max)
+<span class="nc" id="L1053">            double Nifo01 = Math.max(3840.0, term_for_max);</span>
+            
+            // 计算TBS = 8 * 调制阶数 * floor((Nifo01 + 24)/(8 * 调制阶数))
+<span class="nc" id="L1056">            double TBS = 8 * modulationOrder * Math.floor((Nifo01 + 24) / (8 * modulationOrder));</span>
+            // log.debug(&quot;速率对比分析 - 计算TBS: Nifo01={}, modulationOrder={}, TBS={}&quot;,
+            //        Nifo01, modulationOrder, TBS); // Simplified log below
+
+            // DETAILED LOGGING FOR TBS CALCULATION INPUTS AND OUTPUT
+<span class="nc" id="L1061">            log.info(&quot;calculateComparisonRate IN: modOrder={}, dlStreams={}, prb={}, mode={}, frameType={}, dlSlots={}, spSlots={}, period={}. INTERMEDIATE: Nifo={}, Nifo01={}, TBS={}&quot;,</span>
+<span class="nc" id="L1062">                     modulationOrder, dlStreams, prb, mode, frameType, dlSlots, specialSlots, period, Nifo, Nifo01, TBS);</span>
+            
+            // 计算每秒时隙数
+            double slotsPerSecond;
+            
+<span class="nc bnc" id="L1067" title="All 2 branches missed.">            if (&quot;FDD&quot;.equals(mode)) {</span>
+                // FDD模式: 固定10ms周期
+<span class="nc" id="L1069">                slotsPerSecond = dlSlots * (1000.0 / 10.0);</span>
+<span class="nc" id="L1070">                log.debug(&quot;速率对比分析 - FDD计算: 周期=10ms, 下行时隙={}, 每秒时隙数=dlSlots*(1000/10)={}&quot;,</span>
+<span class="nc" id="L1071">                        dlSlots, slotsPerSecond);</span>
+            } else { // TDD模式
+<span class="nc bnc" id="L1073" title="All 4 branches missed.">                int specialSlotsValue = (specialSlots != null &amp;&amp; specialSlots &gt;= 0) ? specialSlots : 0;</span>
+                
+                // 帧结构5的特殊处理，与峰值速率计算保持一致
+<span class="nc bnc" id="L1076" title="All 4 branches missed.">                if (&quot;FRAME5&quot;.equals(frameType) &amp;&amp; specialSlotsValue == 1) {</span>
+<span class="nc" id="L1077">                    slotsPerSecond = dlSlots * (1000.0 / period);</span>
+<span class="nc" id="L1078">                    log.debug(&quot;速率对比分析 - FRAME5特殊处理: 周期={}ms, 下行时隙={}, 特殊时隙=1, 计算公式=dlSlots*(1000/period)={}&quot;,</span>
+<span class="nc" id="L1079">                            period, dlSlots, slotsPerSecond);</span>
+                } else {
+                    // 常规TDD计算
+<span class="nc" id="L1082">                    slotsPerSecond = (dlSlots + specialSlotsValue) * (1000.0 / period);</span>
+<span class="nc" id="L1083">                    log.debug(&quot;速率对比分析 - TDD计算: 周期={}ms, 下行时隙={}, 特殊时隙={}, 有效时隙={}, 计算公式=(dlSlots+specialSlots)*(1000/period)={}&quot;,</span>
+<span class="nc" id="L1084">                            period, dlSlots, specialSlotsValue, (dlSlots + specialSlotsValue), slotsPerSecond);</span>
+                }
+            }
+
+            // 最终理论速率计算 (Mbps) = (TBS * 每秒时隙数) / 10^6
+<span class="nc" id="L1089">            double theoreticalRate = (TBS * slotsPerSecond) / 1_000_000.0;</span>
+<span class="nc" id="L1090">            log.info(&quot;速率对比分析 - 最终理论速率计算: TBS={}, 每秒时隙数={}, 理论速率=(TBS*slotsPerSecond)/10^6={} Mbps&quot;,</span>
+<span class="nc" id="L1091">                    TBS, slotsPerSecond, theoreticalRate);</span>
+            
+<span class="nc" id="L1093">            return theoreticalRate;</span>
+<span class="nc" id="L1094">        } catch (Exception e) {</span>
+<span class="nc" id="L1095">            log.error(&quot;速率对比分析 - 理论速率计算失败: {}&quot;, e.getMessage(), e);</span>
+<span class="nc" id="L1096">            return 0.0; // 计算失败返回0</span>
+        }
+    }
+
+
+    /**
+     * 将MCS值映射为调制阶数
+     * 根据5G NR标准，MCS索引与调制方式的映射关系
+     */
+    private int mapMcsToModulationOrder(double mcsValue) {
+        // 将double类型的MCS值转换为整数索引进行比较
+<span class="nc" id="L1107">        int mcsIndex = (int) Math.round(mcsValue);</span>
+
+<span class="nc" id="L1109">        log.debug(&quot;MCS映射: 原始值={}, 四舍五入后索引={}&quot;, mcsValue, mcsIndex);</span>
+
+<span class="nc bnc" id="L1111" title="All 4 branches missed.">        if (mcsIndex &gt;= 0 &amp;&amp; mcsIndex &lt;= 9) {</span>
+<span class="nc" id="L1112">            return 2; // QPSK (调制阶数 Q_m = 2)</span>
+<span class="nc bnc" id="L1113" title="All 4 branches missed.">        } else if (mcsIndex &gt;= 10 &amp;&amp; mcsIndex &lt;= 16) {</span>
+<span class="nc" id="L1114">            return 4; // 16QAM (调制阶数 Q_m = 4)</span>
+<span class="nc bnc" id="L1115" title="All 4 branches missed.">        } else if (mcsIndex &gt;= 17 &amp;&amp; mcsIndex &lt;= 23) {</span>
+<span class="nc" id="L1116">            return 6; // 64QAM (调制阶数 Q_m = 6)</span>
+<span class="nc bnc" id="L1117" title="All 4 branches missed.">        } else if (mcsIndex &gt;= 24 &amp;&amp; mcsIndex &lt;= 28) {</span>
+<span class="nc" id="L1118">            return 8; // 256QAM (调制阶数 Q_m = 8)</span>
+        } else {
+            // 处理超出定义范围的MCS索引
+<span class="nc" id="L1121">            log.warn(&quot;未知或不支持的MCS索引: {} (原始值: {}), 将使用默认调制阶数 2 (QPSK)&quot;, mcsIndex, mcsValue);</span>
+<span class="nc" id="L1122">            return 2; // 默认返回 QPSK对应的调制阶数</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

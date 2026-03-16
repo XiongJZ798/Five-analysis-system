@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExcelDataDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Five-analysis-system</a> &gt; <a href="index.source.html" class="el_package">com._5ganalysisrate.g5rate.dto</a> &gt; <span class="el_source">ExcelDataDTO.java</span></div><h1>ExcelDataDTO.java</h1><pre class="source lang-java linenums">package com._5ganalysisrate.g5rate.dto;
+
+import lombok.Data;
+import java.time.LocalDateTime;
+
+/**
+ * Excel数据传输对象
+ */
+<span class="nc bnc" id="L9" title="All 94 branches missed.">@Data</span>
+public class ExcelDataDTO {
+<span class="nc" id="L11">    private LocalDateTime testTime;    // 测试时间</span>
+<span class="nc" id="L12">    private Double rsrp;               // RSRP值</span>
+<span class="nc" id="L13">    private Double sinr;               // SINR值</span>
+<span class="nc" id="L14">    private Double macThroughput;      // MAC层吞吐量</span>
+<span class="nc" id="L15">    private Integer rank;              // MIMO层数</span>
+<span class="nc" id="L16">    private Integer mcs;               // 调制编码方案</span>
+<span class="nc" id="L17">    private Integer rbNum;             // 资源块数</span>
+<span class="nc" id="L18">    private Double bler;               // 误块率</span>
+    
+    // 用于文件上传响应
+<span class="nc" id="L21">    private Integer importCount;       // 导入数据条数</span>
+<span class="nc" id="L22">    private String message;            // 处理结果信息</span>
+<span class="nc" id="L23">    private Boolean success;           // 是否成功</span>
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

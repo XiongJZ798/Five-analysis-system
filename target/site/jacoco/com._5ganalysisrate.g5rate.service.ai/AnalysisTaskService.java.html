@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalysisTaskService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Five-analysis-system</a> &gt; <a href="index.source.html" class="el_package">com._5ganalysisrate.g5rate.service.ai</a> &gt; <span class="el_source">AnalysisTaskService.java</span></div><h1>AnalysisTaskService.java</h1><pre class="source lang-java linenums">package com._5ganalysisrate.g5rate.service.ai;
+
+import com._5ganalysisrate.g5rate.dto.ai.AiAnalysisResultDTO;
+import com._5ganalysisrate.g5rate.dto.ai.AnalysisTaskDTO;
+import com._5ganalysisrate.g5rate.dto.ai.FeedbackRequest;
+import com._5ganalysisrate.g5rate.model.ai.*;
+import com._5ganalysisrate.g5rate.model.TestData;
+import com._5ganalysisrate.g5rate.repository.TestDataRepository;
+import com._5ganalysisrate.g5rate.repository.ai.*;
+import com._5ganalysisrate.g5rate.service.AnalysisService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * 分析任务编排服务
+ * 负责任务生命周期管理、规则分析触发、AI分析调用和状态流转
+ */
+<span class="fc" id="L25">@Slf4j</span>
+@Service
+<span class="fc" id="L27">@RequiredArgsConstructor</span>
+public class AnalysisTaskService {
+
+    private final AnalysisTaskRepository taskRepository;
+    private final AnalysisResultRuleRepository ruleResultRepository;
+    private final AnalysisResultAiRepository aiResultRepository;
+    private final AnalysisFeedbackRepository feedbackRepository;
+    private final AnalysisService analysisService;
+    private final TestDataRepository testDataRepository;
+    private final AiAnalysisService aiAnalysisService;
+<span class="fc" id="L37">    private final ObjectMapper objectMapper = new ObjectMapper();</span>
+
+    /**
+     * 创建分析任务（同步创建，异步执行）
+     */
+    @Transactional
+    public AnalysisTaskDTO createTask(String fileName, AnalysisTask.TaskType taskType) {
+<span class="nc" id="L44">        AnalysisTask task = new AnalysisTask();</span>
+<span class="nc" id="L45">        task.setFileName(fileName);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        task.setTaskType(taskType == null ? AnalysisTask.TaskType.RULE_AI : taskType);</span>
+<span class="nc" id="L47">        task.setStatus(AnalysisTask.TaskStatus.PENDING);</span>
+<span class="nc" id="L48">        task.setProgress(0);</span>
+<span class="nc" id="L49">        task = taskRepository.save(task);</span>
+<span class="nc" id="L50">        log.info(&quot;创建分析任务: id={}, fileName={}, type={}&quot;, task.getId(), fileName, task.getTaskType());</span>
+<span class="nc" id="L51">        return toDTO(task);</span>
+    }
+
+    /**
+     * 异步执行分析任务
+     */
+    @Async
+    public void executeTask(Long taskId) {
+<span class="nc" id="L59">        log.info(&quot;开始执行分析任务: taskId={}&quot;, taskId);</span>
+<span class="nc" id="L60">        AnalysisTask task = taskRepository.findById(taskId)</span>
+<span class="nc" id="L61">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;任务不存在: &quot; + taskId));</span>
+
+<span class="nc" id="L63">        updateStatus(task, AnalysisTask.TaskStatus.RUNNING, 10, null);</span>
+
+<span class="nc" id="L65">        boolean ruleSuccess = false;</span>
+<span class="nc" id="L66">        boolean aiSuccess = false;</span>
+<span class="nc" id="L67">        String errorMsg = null;</span>
+
+        // 步骤1：规则分析
+        try {
+<span class="nc" id="L71">            log.info(&quot;执行规则分析: taskId={}&quot;, taskId);</span>
+<span class="nc" id="L72">            Map&lt;String, Object&gt; ruleResult = runRuleAnalysis(task);</span>
+<span class="nc" id="L73">            saveRuleResult(taskId, ruleResult);</span>
+<span class="nc" id="L74">            ruleSuccess = true;</span>
+<span class="nc" id="L75">            updateProgress(task, 60);</span>
+<span class="nc" id="L76">            log.info(&quot;规则分析完成: taskId={}&quot;, taskId);</span>
+<span class="nc" id="L77">        } catch (Exception e) {</span>
+<span class="nc" id="L78">            log.error(&quot;规则分析失败: taskId={}&quot;, taskId, e);</span>
+<span class="nc" id="L79">            errorMsg = &quot;规则分析失败: &quot; + e.getMessage();</span>
+<span class="nc" id="L80">            updateStatus(task, AnalysisTask.TaskStatus.FAILED, task.getProgress(), errorMsg);</span>
+<span class="nc" id="L81">            return;</span>
+<span class="nc" id="L82">        }</span>
+
+        // 步骤2：AI分析（仅RULE_AI模式）
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (task.getTaskType() == AnalysisTask.TaskType.RULE_AI) {</span>
+            try {
+<span class="nc" id="L87">                log.info(&quot;执行AI分析: taskId={}&quot;, taskId);</span>
+<span class="nc" id="L88">                long aiStart = System.currentTimeMillis();</span>
+<span class="nc" id="L89">                Map&lt;String, Object&gt; kpiSummary = buildKpiSummary();</span>
+<span class="nc" id="L90">                Map&lt;String, Object&gt; ruleResultMap = getRuleResultMap(taskId);</span>
+<span class="nc" id="L91">                AiAnalysisResultDTO aiResult = aiAnalysisService.analyze(</span>
+<span class="nc" id="L92">                        task.getFileName(), kpiSummary, ruleResultMap);</span>
+<span class="nc" id="L93">                long latency = System.currentTimeMillis() - aiStart;</span>
+<span class="nc" id="L94">                saveAiResult(taskId, aiResult, task.getFileName(), kpiSummary, latency);</span>
+<span class="nc" id="L95">                aiSuccess = true;</span>
+<span class="nc" id="L96">                updateProgress(task, 90);</span>
+<span class="nc" id="L97">                log.info(&quot;AI分析完成: taskId={}, latency={}ms&quot;, taskId, latency);</span>
+<span class="nc" id="L98">            } catch (Exception e) {</span>
+<span class="nc" id="L99">                log.warn(&quot;AI分析失败(不影响规则结果): taskId={}&quot;, taskId, e);</span>
+<span class="nc" id="L100">                errorMsg = &quot;AI分析失败: &quot; + e.getMessage();</span>
+<span class="nc" id="L101">                aiSuccess = false;</span>
+<span class="nc" id="L102">            }</span>
+        }
+
+        // 确定最终状态
+        AnalysisTask.TaskStatus finalStatus;
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (task.getTaskType() == AnalysisTask.TaskType.RULE_ONLY) {</span>
+<span class="nc" id="L108">            finalStatus = AnalysisTask.TaskStatus.SUCCESS;</span>
+<span class="nc bnc" id="L109" title="All 4 branches missed.">        } else if (ruleSuccess &amp;&amp; aiSuccess) {</span>
+<span class="nc" id="L110">            finalStatus = AnalysisTask.TaskStatus.SUCCESS;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        } else if (ruleSuccess) {</span>
+<span class="nc" id="L112">            finalStatus = AnalysisTask.TaskStatus.PARTIAL_SUCCESS;</span>
+        } else {
+<span class="nc" id="L114">            finalStatus = AnalysisTask.TaskStatus.FAILED;</span>
+        }
+
+<span class="nc" id="L117">        updateStatus(task, finalStatus, 100, errorMsg);</span>
+<span class="nc" id="L118">        log.info(&quot;分析任务完成: taskId={}, status={}&quot;, taskId, finalStatus);</span>
+<span class="nc" id="L119">    }</span>
+
+    @Transactional(readOnly = true)
+    public AnalysisTaskDTO getTask(Long taskId) {
+<span class="nc" id="L123">        return taskRepository.findById(taskId)</span>
+<span class="nc" id="L124">                .map(this::toDTO)</span>
+<span class="nc" id="L125">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;任务不存在: &quot; + taskId));</span>
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;AnalysisTaskDTO&gt; getTasksByFileName(String fileName) {
+<span class="nc" id="L130">        return taskRepository.findByFileNameOrderByCreatedAtDesc(fileName)</span>
+<span class="nc" id="L131">                .stream().map(this::toDTO).collect(Collectors.toList());</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Map&lt;String, Object&gt; getRuleResult(Long taskId) {
+<span class="nc" id="L136">        return ruleResultRepository.findByTaskId(taskId)</span>
+<span class="nc" id="L137">                .map(r -&gt; {</span>
+<span class="nc" id="L138">                    Map&lt;String, Object&gt; result = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L139">                    result.put(&quot;taskId&quot;, taskId);</span>
+<span class="nc" id="L140">                    result.put(&quot;kpiSummary&quot;, parseJson(r.getKpiSummaryJson()));</span>
+<span class="nc" id="L141">                    result.put(&quot;timeseries&quot;, parseJson(r.getTimeseriesJson()));</span>
+<span class="nc" id="L142">                    result.put(&quot;distribution&quot;, parseJson(r.getDistributionJson()));</span>
+<span class="nc" id="L143">                    result.put(&quot;peakRate&quot;, parseJson(r.getPeakRateJson()));</span>
+<span class="nc" id="L144">                    result.put(&quot;createdAt&quot;, r.getCreatedAt());</span>
+<span class="nc" id="L145">                    return result;</span>
+                })
+<span class="nc" id="L147">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;规则分析结果不存在: taskId=&quot; + taskId));</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Map&lt;String, Object&gt; getAiResult(Long taskId) {
+<span class="nc" id="L152">        return aiResultRepository.findByTaskId(taskId)</span>
+<span class="nc" id="L153">                .map(r -&gt; {</span>
+<span class="nc" id="L154">                    Map&lt;String, Object&gt; result = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L155">                    result.put(&quot;taskId&quot;, taskId);</span>
+<span class="nc" id="L156">                    result.put(&quot;modelName&quot;, r.getModelName());</span>
+<span class="nc" id="L157">                    result.put(&quot;promptVersion&quot;, r.getPromptVersion());</span>
+<span class="nc" id="L158">                    result.put(&quot;confidenceScore&quot;, r.getConfidenceScore());</span>
+<span class="nc" id="L159">                    result.put(&quot;tokenUsage&quot;, r.getTokenUsage());</span>
+<span class="nc" id="L160">                    result.put(&quot;latencyMs&quot;, r.getLatencyMs());</span>
+<span class="nc" id="L161">                    result.put(&quot;analysis&quot;, parseJson(r.getOutputJson()));</span>
+<span class="nc" id="L162">                    result.put(&quot;createdAt&quot;, r.getCreatedAt());</span>
+<span class="nc" id="L163">                    return result;</span>
+                })
+<span class="nc" id="L165">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;AI分析结果不存在: taskId=&quot; + taskId));</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Map&lt;String, Object&gt; generateReport(Long taskId) {
+<span class="nc" id="L170">        AnalysisTask task = taskRepository.findById(taskId)</span>
+<span class="nc" id="L171">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;任务不存在: &quot; + taskId));</span>
+
+<span class="nc" id="L173">        Map&lt;String, Object&gt; report = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L174">        report.put(&quot;taskId&quot;, taskId);</span>
+<span class="nc" id="L175">        report.put(&quot;fileName&quot;, task.getFileName());</span>
+<span class="nc" id="L176">        report.put(&quot;status&quot;, task.getStatus());</span>
+<span class="nc" id="L177">        report.put(&quot;generatedAt&quot;, java.time.LocalDateTime.now());</span>
+
+        // 规则分析结果
+<span class="nc" id="L180">        ruleResultRepository.findByTaskId(taskId).ifPresent(r -&gt;</span>
+<span class="nc" id="L181">                report.put(&quot;ruleAnalysis&quot;, Map.of(</span>
+<span class="nc" id="L182">                        &quot;kpiSummary&quot;, parseJson(r.getKpiSummaryJson()),</span>
+<span class="nc" id="L183">                        &quot;distribution&quot;, parseJson(r.getDistributionJson()),</span>
+<span class="nc" id="L184">                        &quot;peakRate&quot;, parseJson(r.getPeakRateJson())</span>
+                ))
+        );
+
+        // AI分析结果
+<span class="nc" id="L189">        aiResultRepository.findByTaskId(taskId).ifPresent(r -&gt;</span>
+<span class="nc" id="L190">                report.put(&quot;aiAnalysis&quot;, parseJson(r.getOutputJson()))</span>
+        );
+
+        // 反馈汇总
+<span class="nc" id="L194">        List&lt;AnalysisFeedback&gt; feedbacks = feedbackRepository.findByTaskIdOrderByCreatedAtDesc(taskId);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (!feedbacks.isEmpty()) {</span>
+<span class="nc" id="L196">            report.put(&quot;feedbackCount&quot;, feedbacks.size());</span>
+        }
+
+<span class="nc" id="L199">        return report;</span>
+    }
+
+    @Transactional
+    public AnalysisFeedback submitFeedback(Long taskId, FeedbackRequest request) {
+<span class="nc" id="L204">        taskRepository.findById(taskId)</span>
+<span class="nc" id="L205">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;任务不存在: &quot; + taskId));</span>
+
+<span class="nc" id="L207">        AnalysisFeedback feedback = new AnalysisFeedback();</span>
+<span class="nc" id="L208">        feedback.setTaskId(taskId);</span>
+<span class="nc" id="L209">        feedback.setFindingId(request.getFindingId());</span>
+<span class="nc" id="L210">        feedback.setFeedbackType(request.getFeedbackType());</span>
+<span class="nc" id="L211">        feedback.setComment(request.getComment());</span>
+<span class="nc" id="L212">        feedback.setCreatedBy(request.getCreatedBy());</span>
+<span class="nc" id="L213">        return feedbackRepository.save(feedback);</span>
+    }
+
+    // ===== 私有辅助方法 =====
+
+    private Map&lt;String, Object&gt; runRuleAnalysis(AnalysisTask task) {
+<span class="nc" id="L219">        Map&lt;String, Object&gt; result = new LinkedHashMap&lt;&gt;();</span>
+        // 时序分析
+<span class="nc" id="L221">        result.put(&quot;timeseries&quot;, analysisService.getTimeSeriesData(</span>
+<span class="nc" id="L222">                List.of(&quot;rsrp&quot;, &quot;sinr&quot;, &quot;macThroughput&quot;)));</span>
+        // 分布分析
+<span class="nc" id="L224">        result.put(&quot;distribution&quot;, analysisService.getRateDistribution(null));</span>
+        // KPI汇总
+<span class="nc" id="L226">        result.put(&quot;kpiSummary&quot;, buildKpiSummary());</span>
+<span class="nc" id="L227">        return result;</span>
+    }
+
+    private Map&lt;String, Object&gt; buildKpiSummary() {
+<span class="nc" id="L231">        List&lt;TestData&gt; data = testDataRepository.findAllByOrderByTestTimeAsc();</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">        if (data.isEmpty()) {</span>
+<span class="nc" id="L233">            return Map.of(&quot;dataCount&quot;, 0);</span>
+        }
+
+<span class="nc" id="L236">        DoubleSummaryStatistics throughputStats = data.stream()</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">                .filter(d -&gt; d.getMacThroughput() != null)</span>
+<span class="nc" id="L238">                .mapToDouble(TestData::getMacThroughput)</span>
+<span class="nc" id="L239">                .summaryStatistics();</span>
+
+<span class="nc" id="L241">        DoubleSummaryStatistics rsrpStats = data.stream()</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">                .filter(d -&gt; d.getRsrp() != null)</span>
+<span class="nc" id="L243">                .mapToDouble(TestData::getRsrp)</span>
+<span class="nc" id="L244">                .summaryStatistics();</span>
+
+<span class="nc" id="L246">        DoubleSummaryStatistics sinrStats = data.stream()</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">                .filter(d -&gt; d.getSinr() != null)</span>
+<span class="nc" id="L248">                .mapToDouble(TestData::getSinr)</span>
+<span class="nc" id="L249">                .summaryStatistics();</span>
+
+<span class="nc" id="L251">        Map&lt;String, Object&gt; summary = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L252">        summary.put(&quot;dataCount&quot;, data.size());</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">        if (throughputStats.getCount() &gt; 0) {</span>
+<span class="nc" id="L254">            summary.put(&quot;avgMacThroughput&quot;, Math.round(throughputStats.getAverage() * 100) / 100.0);</span>
+<span class="nc" id="L255">            summary.put(&quot;maxMacThroughput&quot;, throughputStats.getMax());</span>
+<span class="nc" id="L256">            summary.put(&quot;minMacThroughput&quot;, throughputStats.getMin());</span>
+        }
+<span class="nc bnc" id="L258" title="All 2 branches missed.">        if (rsrpStats.getCount() &gt; 0) {</span>
+<span class="nc" id="L259">            summary.put(&quot;avgRsrp&quot;, Math.round(rsrpStats.getAverage() * 100) / 100.0);</span>
+        }
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (sinrStats.getCount() &gt; 0) {</span>
+<span class="nc" id="L262">            summary.put(&quot;avgSinr&quot;, Math.round(sinrStats.getAverage() * 100) / 100.0);</span>
+        }
+<span class="nc" id="L264">        return summary;</span>
+    }
+
+    private Map&lt;String, Object&gt; getRuleResultMap(Long taskId) {
+<span class="nc" id="L268">        return ruleResultRepository.findByTaskId(taskId)</span>
+<span class="nc" id="L269">                .map(r -&gt; {</span>
+<span class="nc" id="L270">                    Map&lt;String, Object&gt; m = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L271">                    m.put(&quot;timeseries&quot;, parseJson(r.getTimeseriesJson()));</span>
+<span class="nc" id="L272">                    m.put(&quot;distribution&quot;, parseJson(r.getDistributionJson()));</span>
+<span class="nc" id="L273">                    return m;</span>
+                })
+<span class="nc" id="L275">                .orElse(Collections.emptyMap());</span>
+    }
+
+    @Transactional
+    protected void saveRuleResult(Long taskId, Map&lt;String, Object&gt; ruleResult) {
+<span class="nc" id="L280">        AnalysisResultRule result = new AnalysisResultRule();</span>
+<span class="nc" id="L281">        result.setTaskId(taskId);</span>
+        try {
+<span class="nc bnc" id="L283" title="All 2 branches missed.">            if (ruleResult.containsKey(&quot;kpiSummary&quot;)) {</span>
+<span class="nc" id="L284">                result.setKpiSummaryJson(objectMapper.writeValueAsString(ruleResult.get(&quot;kpiSummary&quot;)));</span>
+            }
+<span class="nc bnc" id="L286" title="All 2 branches missed.">            if (ruleResult.containsKey(&quot;timeseries&quot;)) {</span>
+<span class="nc" id="L287">                result.setTimeseriesJson(objectMapper.writeValueAsString(ruleResult.get(&quot;timeseries&quot;)));</span>
+            }
+<span class="nc bnc" id="L289" title="All 2 branches missed.">            if (ruleResult.containsKey(&quot;distribution&quot;)) {</span>
+<span class="nc" id="L290">                result.setDistributionJson(objectMapper.writeValueAsString(ruleResult.get(&quot;distribution&quot;)));</span>
+            }
+<span class="nc" id="L292">        } catch (Exception e) {</span>
+<span class="nc" id="L293">            log.error(&quot;序列化规则分析结果失败&quot;, e);</span>
+<span class="nc" id="L294">        }</span>
+<span class="nc" id="L295">        ruleResultRepository.save(result);</span>
+<span class="nc" id="L296">    }</span>
+
+    @Transactional
+    protected void saveAiResult(Long taskId, AiAnalysisResultDTO aiResult, String fileName,
+                                 Map&lt;String, Object&gt; kpiSummary, long latencyMs) {
+<span class="nc" id="L301">        AnalysisResultAi result = new AnalysisResultAi();</span>
+<span class="nc" id="L302">        result.setTaskId(taskId);</span>
+<span class="nc" id="L303">        result.setModelName(&quot;mock-ai&quot;);</span>
+<span class="nc" id="L304">        result.setPromptVersion(&quot;v1.0&quot;);</span>
+<span class="nc" id="L305">        result.setInputDigest(aiAnalysisService.computeDigest(fileName, kpiSummary));</span>
+<span class="nc" id="L306">        result.setLatencyMs(latencyMs);</span>
+<span class="nc bnc" id="L307" title="All 4 branches missed.">        if (aiResult.getFindings() != null &amp;&amp; !aiResult.getFindings().isEmpty()) {</span>
+            // 计算平均置信度
+<span class="nc bnc" id="L309" title="All 2 branches missed.">            double avgConf = aiResult.getRootCauses() != null</span>
+<span class="nc" id="L310">                    ? aiResult.getRootCauses().stream()</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">                    .filter(rc -&gt; rc.getConfidence() != null)</span>
+<span class="nc" id="L312">                    .mapToDouble(AiAnalysisResultDTO.RootCause::getConfidence)</span>
+<span class="nc" id="L313">                    .average().orElse(0.75)</span>
+<span class="nc" id="L314">                    : 0.75;</span>
+<span class="nc" id="L315">            result.setConfidenceScore(avgConf);</span>
+        }
+        try {
+<span class="nc" id="L318">            result.setOutputJson(objectMapper.writeValueAsString(aiResult));</span>
+<span class="nc" id="L319">        } catch (Exception e) {</span>
+<span class="nc" id="L320">            log.error(&quot;序列化AI分析结果失败&quot;, e);</span>
+<span class="nc" id="L321">        }</span>
+<span class="nc" id="L322">        aiResultRepository.save(result);</span>
+<span class="nc" id="L323">    }</span>
+
+    private void updateStatus(AnalysisTask task, AnalysisTask.TaskStatus status,
+                               int progress, String errorMessage) {
+<span class="nc" id="L327">        task.setStatus(status);</span>
+<span class="nc" id="L328">        task.setProgress(progress);</span>
+<span class="nc" id="L329">        task.setErrorMessage(errorMessage);</span>
+<span class="nc" id="L330">        taskRepository.save(task);</span>
+<span class="nc" id="L331">    }</span>
+
+    private void updateProgress(AnalysisTask task, int progress) {
+<span class="nc" id="L334">        task.setProgress(progress);</span>
+<span class="nc" id="L335">        taskRepository.save(task);</span>
+<span class="nc" id="L336">    }</span>
+
+    private Object parseJson(String json) {
+<span class="nc bnc" id="L339" title="All 4 branches missed.">        if (json == null || json.isBlank()) return null;</span>
+        try {
+<span class="nc" id="L341">            return objectMapper.readValue(json, Object.class);</span>
+<span class="nc" id="L342">        } catch (Exception e) {</span>
+<span class="nc" id="L343">            return json;</span>
+        }
+    }
+
+    private AnalysisTaskDTO toDTO(AnalysisTask task) {
+<span class="nc" id="L348">        AnalysisTaskDTO dto = new AnalysisTaskDTO();</span>
+<span class="nc" id="L349">        dto.setId(task.getId());</span>
+<span class="nc" id="L350">        dto.setFileName(task.getFileName());</span>
+<span class="nc" id="L351">        dto.setTaskType(task.getTaskType());</span>
+<span class="nc" id="L352">        dto.setStatus(task.getStatus());</span>
+<span class="nc" id="L353">        dto.setProgress(task.getProgress());</span>
+<span class="nc" id="L354">        dto.setErrorMessage(task.getErrorMessage());</span>
+<span class="nc" id="L355">        dto.setCreatedAt(task.getCreatedAt());</span>
+<span class="nc" id="L356">        dto.setUpdatedAt(task.getUpdatedAt());</span>
+<span class="nc" id="L357">        return dto;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

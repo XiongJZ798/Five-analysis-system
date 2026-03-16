@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="11.149" tests="6" errors="0" skipped="0" failures="1">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="10.058" tests="6" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -14,7 +14,7 @@
     <property name="java.vm.specification.version" value="21"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/temurin-21-jdk-amd64/lib"/>
-    <property name="sun.java.command" value="/home/runner/work/Five-analysis-system/Five-analysis-system/target/surefire/surefirebooter-20260316143810712_3.jar /home/runner/work/Five-analysis-system/Five-analysis-system/target/surefire 2026-03-16T14-38-10_635-jvmRun1 surefire-20260316143810712_1tmp surefire_0-20260316143810712_2tmp"/>
+    <property name="sun.java.command" value="/home/runner/work/Five-analysis-system/Five-analysis-system/target/surefire/surefirebooter-20260316154310350_3.jar /home/runner/work/Five-analysis-system/Five-analysis-system/target/surefire 2026-03-16T15-43-10_281-jvmRun1 surefire-20260316154310350_1tmp surefire_0-20260316154310350_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/runner/work/Five-analysis-system/Five-analysis-system/target/test-classes:/home/runner/work/Five-analysis-system/Five-analysis-system/target/classes:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.2.3/spring-boot-starter-web-3.2.3.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter/3.2.3/spring-boot-starter-3.2.3.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot/3.2.3/spring-boot-3.2.3.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.2.3/spring-boot-autoconfigure-3.2.3.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.2.3/spring-boot-starter-logging-3.2.3.jar:/home/runner/.m2/repository/ch/qos/logback/logback-classic/1.4.14/logback-classic-1.4.14.jar:/home/runner/.m2/repository/ch/qos/logback/logback-core/1.4.14/logback-core-1.4.14.jar:/home/runner/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.21.1/log4j-to-slf4j-2.21.1.jar:/home/runner/.m2/repository/org/slf4j/jul-to-slf4j/2.0.12/jul-to-slf4j-2.0.12.jar:/home/runner/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/home/runner/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.2.3/spring-boot-starter-json-3.2.3.jar:/home/runner/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.15.4/jackson-databind-2.15.4.jar:/home/runner/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.15.4/jackson-annotations-2.15.4.jar:/home/runner/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.15.4/jackson-core-2.15.4.jar:/home/runner/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.15.4/jackson-datatype-jdk8-2.15.4.jar:/home/runner/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.15.4/jackson-datatype-jsr310-2.15.4.jar:/home/runner/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.15.4/jackson-module-parameter-names-2.15.4.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.2.3/spring-boot-starter-tomcat-3.2.3.jar:/home/runner/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.19/tomcat-embed-core-10.1.19.jar:/home/runner/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.19/tomcat-embed-el-10.1.19.jar:/home/runner/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.19/tomcat-embed-websocket-10.1.19.jar:/home/runner/.m2/repository/org/springframework/spring-web/6.1.4/spring-web-6.1.4.jar:/home/runner/.m2/repository/org/springframework/spring-beans/6.1.4/spring-beans-6.1.4.jar:/home/runner/.m2/repository/org/springframework/spring-webmvc/6.1.4/spring-webmvc-6.1.4.jar:/home/runner/.m2/repository/org/springframework/spring-context/6.1.4/spring-context-6.1.4.jar:/home/runner/.m2/repository/org/springframework/spring-expression/6.1.4/spring-expression-6.1.4.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.2.3/spring-boot-starter-data-jpa-3.2.3.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-aop/3.2.3/spring-boot-starter-aop-3.2.3.jar:/home/runner/.m2/repository/org/aspectj/aspectjweaver/1.9.21/aspectjweaver-1.9.21.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.2.3/spring-boot-starter-jdbc-3.2.3.jar:/home/runner/.m2/repository/org/springframework/spring-jdbc/6.1.4/spring-jdbc-6.1.4.jar:/home/runner/.m2/repository/org/springframework/data/spring-data-jpa/3.2.3/spring-data-jpa-3.2.3.jar:/home/runner/.m2/repository/org/springframework/data/spring-data-commons/3.2.3/spring-data-commons-3.2.3.jar:/home/runner/.m2/repository/org/springframework/spring-orm/6.1.4/spring-orm-6.1.4.jar:/home/runner/.m2/repository/org/springframework/spring-tx/6.1.4/spring-tx-6.1.4.jar:/home/runner/.m2/repository/org/springframework/spring-aspects/6.1.4/spring-aspects-6.1.4.jar:/home/runner/.m2/repository/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar:/home/runner/.m2/repository/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar:/home/runner/.m2/repository/org/apache/poi/poi/5.2.3/poi-5.2.3.jar:/home/runner/.m2/repository/commons-codec/commons-codec/1.16.1/commons-codec-1.16.1.jar:/home/runner/.m2/repository/org/apache/commons/commons-collections4/4.4/commons-collections4-4.4.jar:/home/runner/.m2/repository/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1.jar:/home/runner/.m2/repository/commons-io/commons-io/2.11.0/commons-io-2.11.0.jar:/home/runner/.m2/repository/com/zaxxer/SparseBitSet/1.2/SparseBitSet-1.2.jar:/home/runner/.m2/repository/org/apache/logging/log4j/log4j-api/2.21.1/log4j-api-2.21.1.jar:/home/runner/.m2/repository/org/apache/poi/poi-ooxml/5.2.3/poi-ooxml-5.2.3.jar:/home/runner/.m2/repository/org/apache/poi/poi-ooxml-lite/5.2.3/poi-ooxml-lite-5.2.3.jar:/home/runner/.m2/repository/org/apache/xmlbeans/xmlbeans/5.1.1/xmlbeans-5.1.1.jar:/home/runner/.m2/repository/org/apache/commons/commons-compress/1.21/commons-compress-1.21.jar:/home/runner/.m2/repository/com/github/virtuald/curvesapi/1.07/curvesapi-1.07.jar:/home/runner/.m2/repository/org/hibernate/orm/hibernate-core/6.6.2.Final/hibernate-core-6.6.2.Final.jar:/home/runner/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar:/home/runner/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar:/home/runner/.m2/repository/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar:/home/runner/.m2/repository/org/hibernate/common/hibernate-commons-annotations/7.0.3.Final/hibernate-commons-annotations-7.0.3.Final.jar:/home/runner/.m2/repository/io/smallrye/jandex/3.2.0/jandex-3.2.0.jar:/home/runner/.m2/repository/com/fasterxml/classmate/1.6.0/classmate-1.6.0.jar:/home/runner/.m2/repository/net/bytebuddy/byte-buddy/1.14.12/byte-buddy-1.14.12.jar:/home/runner/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.1/jakarta.xml.bind-api-4.0.1.jar:/home/runner/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.2/jakarta.activation-api-2.1.2.jar:/home/runner/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.4/jaxb-runtime-4.0.4.jar:/home/runner/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.4/jaxb-core-4.0.4.jar:/home/runner/.m2/repository/org/eclipse/angus/angus-activation/2.0.1/angus-activation-2.0.1.jar:/home/runner/.m2/repository/org/glassfish/jaxb/txw2/4.0.4/txw2-4.0.4.jar:/home/runner/.m2/repository/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar:/home/runner/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar:/home/runner/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.2.3/spring-boot-starter-security-3.2.3.jar:/home/runner/.m2/repository/org/springframework/spring-aop/6.1.4/spring-aop-6.1.4.jar:/home/runner/.m2/repository/org/springframework/security/spring-security-config/6.2.2/spring-security-config-6.2.2.jar:/home/runner/.m2/repository/org/springframework/security/spring-security-core/6.2.2/spring-security-core-6.2.2.jar:/home/runner/.m2/repository/org/springframework/security/spring-security-crypto/6.2.2/spring-security-crypto-6.2.2.jar:/home/runner/.m2/repository/org/springframework/security/spring-security-web/6.2.2/spring-security-web-6.2.2.jar:/home/runner/.m2/repository/com/github/ben-manes/caffeine/caffeine/3.1.8/caffeine-3.1.8.jar:/home/runner/.m2/repository/org/checkerframework/checker-qual/3.37.0/checker-qual-3.37.0.jar:/home/runner/.m2/repository/com/google/errorprone/error_prone_annotations/2.21.1/error_prone_annotations-2.21.1.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-cache/3.2.3/spring-boot-starter-cache-3.2.3.jar:/home/runner/.m2/repository/org/springframework/spring-context-support/6.1.4/spring-context-support-6.1.4.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-test/3.2.3/spring-boot-starter-test-3.2.3.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-test/3.2.3/spring-boot-test-3.2.3.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/3.2.3/spring-boot-test-autoconfigure-3.2.3.jar:/home/runner/.m2/repository/com/jayway/jsonpath/json-path/2.9.0/json-path-2.9.0.jar:/home/runner/.m2/repository/net/minidev/json-smart/2.5.0/json-smart-2.5.0.jar:/home/runner/.m2/repository/net/minidev/accessors-smart/2.5.0/accessors-smart-2.5.0.jar:/home/runner/.m2/repository/org/ow2/asm/asm/9.3/asm-9.3.jar:/home/runner/.m2/repository/org/assertj/assertj-core/3.24.2/assertj-core-3.24.2.jar:/home/runner/.m2/repository/org/awaitility/awaitility/4.2.0/awaitility-4.2.0.jar:/home/runner/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/home/runner/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.2/junit-jupiter-5.10.2.jar:/home/runner/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.2/junit-jupiter-params-5.10.2.jar:/home/runner/.m2/repository/org/skyscreamer/jsonassert/1.5.1/jsonassert-1.5.1.jar:/home/runner/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar:/home/runner/.m2/repository/org/springframework/spring-core/6.1.4/spring-core-6.1.4.jar:/home/runner/.m2/repository/org/springframework/spring-jcl/6.1.4/spring-jcl-6.1.4.jar:/home/runner/.m2/repository/org/springframework/spring-test/6.1.4/spring-test-6.1.4.jar:/home/runner/.m2/repository/org/xmlunit/xmlunit-core/2.9.1/xmlunit-core-2.9.1.jar:/home/runner/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/home/runner/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/runner/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/home/runner/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/runner/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.2/junit-jupiter-engine-5.10.2.jar:/home/runner/.m2/repository/org/junit/platform/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar:/home/runner/.m2/repository/org/mockito/mockito-core/5.11.0/mockito-core-5.11.0.jar:/home/runner/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.12/byte-buddy-agent-1.14.12.jar:/home/runner/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/runner/.m2/repository/org/mockito/mockito-junit-jupiter/5.11.0/mockito-junit-jupiter-5.11.0.jar:/home/runner/.m2/repository/com/h2database/h2/2.2.224/h2-2.2.224.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-starter-actuator/3.2.3/spring-boot-starter-actuator-3.2.3.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-actuator-autoconfigure/3.2.3/spring-boot-actuator-autoconfigure-3.2.3.jar:/home/runner/.m2/repository/org/springframework/boot/spring-boot-actuator/3.2.3/spring-boot-actuator-3.2.3.jar:/home/runner/.m2/repository/io/micrometer/micrometer-observation/1.12.3/micrometer-observation-1.12.3.jar:/home/runner/.m2/repository/io/micrometer/micrometer-commons/1.12.3/micrometer-commons-1.12.3.jar:/home/runner/.m2/repository/io/micrometer/micrometer-jakarta9/1.12.3/micrometer-jakarta9-1.12.3.jar:/home/runner/.m2/repository/io/micrometer/micrometer-registry-prometheus/1.12.3/micrometer-registry-prometheus-1.12.3.jar:/home/runner/.m2/repository/io/micrometer/micrometer-core/1.12.3/micrometer-core-1.12.3.jar:/home/runner/.m2/repository/org/hdrhistogram/HdrHistogram/2.1.12/HdrHistogram-2.1.12.jar:/home/runner/.m2/repository/org/latencyutils/LatencyUtils/2.0.3/LatencyUtils-2.0.3.jar:/home/runner/.m2/repository/io/prometheus/simpleclient_common/0.16.0/simpleclient_common-0.16.0.jar:/home/runner/.m2/repository/io/prometheus/simpleclient/0.16.0/simpleclient-0.16.0.jar:/home/runner/.m2/repository/io/prometheus/simpleclient_tracer_otel/0.16.0/simpleclient_tracer_otel-0.16.0.jar:/home/runner/.m2/repository/io/prometheus/simpleclient_tracer_common/0.16.0/simpleclient_tracer_common-0.16.0.jar:/home/runner/.m2/repository/io/prometheus/simpleclient_tracer_otel_agent/0.16.0/simpleclient_tracer_otel_agent-0.16.0.jar:/home/runner/.m2/repository/com/zaxxer/HikariCP/5.0.1/HikariCP-5.0.1.jar:/home/runner/.m2/repository/org/slf4j/slf4j-api/2.0.12/slf4j-api-2.0.12.jar:/home/runner/.m2/repository/org/hibernate/orm/hibernate-jcache/6.4.4.Final/hibernate-jcache-6.4.4.Final.jar:/home/runner/.m2/repository/javax/cache/cache-api/1.1.1/cache-api-1.1.1.jar:/home/runner/.m2/repository/org/ehcache/ehcache/3.10.8/ehcache-3.10.8-jakarta.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -31,7 +31,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="FILE_LOG_CHARSET" value="UTF-8"/>
     <property name="java.awt.headless" value="true"/>
-    <property name="surefire.real.class.path" value="/home/runner/work/Five-analysis-system/Five-analysis-system/target/surefire/surefirebooter-20260316143810712_3.jar"/>
+    <property name="surefire.real.class.path" value="/home/runner/work/Five-analysis-system/Five-analysis-system/target/surefire/surefirebooter-20260316154310350_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.10+7-LTS"/>
     <property name="user.name" value="runner"/>
@@ -51,7 +51,7 @@
     <property name="user.dir" value="/home/runner/work/Five-analysis-system/Five-analysis-system"/>
     <property name="os.arch" value="amd64"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
-    <property name="PID" value="5295"/>
+    <property name="PID" value="4631"/>
     <property name="CONSOLE_LOG_CHARSET" value="UTF-8"/>
     <property name="LOGBACK_ROLLINGPOLICY_MAX_HISTORY" value="30"/>
     <property name="native.encoding" value="UTF-8"/>
@@ -62,11 +62,11 @@
     <property name="java.vm.version" value="21.0.10+7-LTS"/>
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
-    <property name="CONSOLE_LOG_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(5295){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"/>
+    <property name="CONSOLE_LOG_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(4631){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"/>
   </properties>
-  <testcase name="testCalculatePeakRate_InvalidParameters" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.601">
-    <system-out><![CDATA[14:38:14.985 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest]: AnalysisControllerIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-14:38:15.212 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com._5ganalysisrate.FiveAnalysisSystemApplication for test class com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest
+  <testcase name="testCalculatePeakRate_InvalidParameters" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.559">
+    <system-out><![CDATA[15:43:14.117 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest]: AnalysisControllerIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:43:14.295 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com._5ganalysisrate.FiveAnalysisSystemApplication for test class com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -76,20 +76,20 @@
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v3.2.3)
 
-2026-03-16 14:38:16.080  INFO 5295 --- [           main] ._.g.c.AnalysisControllerIntegrationTest : Starting AnalysisControllerIntegrationTest using Java 21.0.10 with PID 5295 (started by runner in /home/runner/work/Five-analysis-system/Five-analysis-system)
-2026-03-16 14:38:16.082 DEBUG 5295 --- [           main] ._.g.c.AnalysisControllerIntegrationTest : Running with Spring Boot v3.2.3, Spring v6.1.4
-2026-03-16 14:38:16.082  INFO 5295 --- [           main] ._.g.c.AnalysisControllerIntegrationTest : The following 1 profile is active: "test"
-2026-03-16 14:38:17.641  INFO 5295 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-03-16 14:38:17.727  INFO 5295 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 74 ms. Found 5 JPA repository interfaces.
-2026-03-16 14:38:18.992  INFO 5295 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-03-16 14:38:19.082  INFO 5295 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.2.Final
-2026-03-16 14:38:19.125  INFO 5295 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000025: Second-level cache region factory [org.hibernate.cache.jcache.internal.JCacheRegionFactory]
-2026-03-16 14:38:19.296  INFO 5295 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-03-16 14:38:19.334  INFO 5295 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-G5Rate - Starting...
-2026-03-16 14:38:19.742  INFO 5295 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-G5Rate - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
-2026-03-16 14:38:19.840  INFO 5295 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-G5Rate - Start completed.
-2026-03-16 14:38:19.879  WARN 5295 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-03-16 14:38:19.909  INFO 5295 --- [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2026-03-16 15:43:14.970  INFO 4631 --- [           main] ._.g.c.AnalysisControllerIntegrationTest : Starting AnalysisControllerIntegrationTest using Java 21.0.10 with PID 4631 (started by runner in /home/runner/work/Five-analysis-system/Five-analysis-system)
+2026-03-16 15:43:14.971 DEBUG 4631 --- [           main] ._.g.c.AnalysisControllerIntegrationTest : Running with Spring Boot v3.2.3, Spring v6.1.4
+2026-03-16 15:43:14.972  INFO 4631 --- [           main] ._.g.c.AnalysisControllerIntegrationTest : The following 1 profile is active: "test"
+2026-03-16 15:43:16.379  INFO 4631 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-16 15:43:16.466  INFO 4631 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 75 ms. Found 5 JPA repository interfaces.
+2026-03-16 15:43:17.509  INFO 4631 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-16 15:43:17.580  INFO 4631 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.2.Final
+2026-03-16 15:43:17.622  INFO 4631 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000025: Second-level cache region factory [org.hibernate.cache.jcache.internal.JCacheRegionFactory]
+2026-03-16 15:43:17.786  INFO 4631 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-16 15:43:17.821  INFO 4631 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-G5Rate - Starting...
+2026-03-16 15:43:18.296  INFO 4631 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-G5Rate - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2026-03-16 15:43:18.389  INFO 4631 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-G5Rate - Start completed.
+2026-03-16 15:43:18.437  WARN 4631 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-16 15:43:18.475  INFO 4631 --- [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-G5Rate)']
 	Database driver: undefined/unknown
 	Database version: 2.2.224
@@ -97,39 +97,39 @@
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-03-16 14:38:21.027  INFO 5295 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-03-16 14:38:21.032  INFO 5295 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-03-16 14:38:21.372  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{ [/error], produces [text/html]}] onto method [org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#errorHtml(HttpServletRequest, HttpServletResponse)]
-2026-03-16 14:38:21.373  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{DELETE [/testdata]}] onto method [com._5ganalysisrate.g5rate.controller.TestDataController#deleteAllTestData()]
-2026-03-16 14:38:21.373  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/analysis/tasks/{taskId}]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#getTask(Long)]
-2026-03-16 14:38:21.373  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/tasks]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#createTask(Map)]
-2026-03-16 14:38:21.373  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{ [/error]}] onto method [org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)]
-2026-03-16 14:38:21.373  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/time-series-chart]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisController#getTimeSeriesData(Map)]
-2026-03-16 14:38:21.373  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/testdata]}] onto method [com._5ganalysisrate.g5rate.controller.TestDataController#getAllTestData(int, int)]
-2026-03-16 14:38:21.374  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/rate-distribution-chart]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisController#getRateDistribution(Map)]
-2026-03-16 14:38:21.374  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/tasks/{taskId}/feedback]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#submitFeedback(Long, FeedbackRequest)]
-2026-03-16 14:38:21.374  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/rate-comparison]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisController#getRateComparison(Map)]
-2026-03-16 14:38:21.374  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/analysis/tasks/{taskId}/ai-result]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#getAiResult(Long)]
-2026-03-16 14:38:21.374  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/analysis/tasks]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#getTasksByFileName(String)]
-2026-03-16 14:38:21.374  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/analysis/tasks/{taskId}/report]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#generateReport(Long)]
-2026-03-16 14:38:21.374  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/testdata/{id}]}] onto method [com._5ganalysisrate.g5rate.controller.TestDataController#getTestDataById(Long)]
-2026-03-16 14:38:21.375  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/analysis/tasks/{taskId}/rule-result]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#getRuleResult(Long)]
-2026-03-16 14:38:21.375  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/calculate-peak-rate]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisController#calculatePeakRate(Map)]
-2026-03-16 14:38:21.375  INFO 5295 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/file/upload]}] onto method [com._5ganalysisrate.g5rate.controller.FileController#uploadFile(MultipartFile)]
-2026-03-16 14:38:21.872  INFO 5295 --- [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-03-16 14:38:23.434  WARN 5295 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+2026-03-16 15:43:19.835  INFO 4631 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-16 15:43:19.839  INFO 4631 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-16 15:43:20.184  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/testdata]}] onto method [com._5ganalysisrate.g5rate.controller.TestDataController#getAllTestData(int, int)]
+2026-03-16 15:43:20.185  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{ [/error]}] onto method [org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)]
+2026-03-16 15:43:20.185  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/rate-distribution-chart]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisController#getRateDistribution(List)]
+2026-03-16 15:43:20.185  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/time-series-chart]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisController#getTimeSeriesData(Map)]
+2026-03-16 15:43:20.185  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/analysis/tasks/{taskId}]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#getTask(Long)]
+2026-03-16 15:43:20.185  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/analysis/tasks/{taskId}/rule-result]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#getRuleResult(Long)]
+2026-03-16 15:43:20.185  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/calculate-peak-rate]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisController#calculatePeakRate(Map)]
+2026-03-16 15:43:20.186  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{ [/error], produces [text/html]}] onto method [org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#errorHtml(HttpServletRequest, HttpServletResponse)]
+2026-03-16 15:43:20.186  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/analysis/tasks/{taskId}/ai-result]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#getAiResult(Long)]
+2026-03-16 15:43:20.186  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/rate-comparison]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisController#getRateComparison(Map)]
+2026-03-16 15:43:20.186  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/tasks/{taskId}/feedback]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#submitFeedback(Long, FeedbackRequest)]
+2026-03-16 15:43:20.186  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/file/upload]}] onto method [com._5ganalysisrate.g5rate.controller.FileController#uploadFile(MultipartFile)]
+2026-03-16 15:43:20.187  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{POST [/analysis/tasks]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#createTask(Map)]
+2026-03-16 15:43:20.187  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/analysis/tasks]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#getTasksByFileName(String)]
+2026-03-16 15:43:20.187  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/testdata/{id}]}] onto method [com._5ganalysisrate.g5rate.controller.TestDataController#getTestDataById(Long)]
+2026-03-16 15:43:20.187  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{GET [/analysis/tasks/{taskId}/report]}] onto method [com._5ganalysisrate.g5rate.controller.AnalysisTaskController#generateReport(Long)]
+2026-03-16 15:43:20.187  INFO 4631 --- [           main] c._.FiveAnalysisSystemApplication        : Mapped URL path [{DELETE [/testdata]}] onto method [com._5ganalysisrate.g5rate.controller.TestDataController#deleteAllTestData()]
+2026-03-16 15:43:20.640  INFO 4631 --- [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-16 15:43:21.777  WARN 4631 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
 
-Using generated security password: 2acea2ad-8409-42cf-9194-a1ae6ab99203
+Using generated security password: e97bb181-0286-4528-b53b-79d0af8ce93d
 
 This generated password is for development use only. Your security configuration must be updated before running your application in production.
 
-2026-03-16 14:38:24.110  INFO 5295 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoint(s) beneath base path '/actuator'
-2026-03-16 14:38:24.214  INFO 5295 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@198bf068, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3a8ae382, org.springframework.security.web.context.SecurityContextHolderFilter@4b60c1b3, org.springframework.security.web.header.HeaderWriterFilter@5451c2bd, org.springframework.web.filter.CorsFilter@680a8317, org.springframework.security.web.authentication.logout.LogoutFilter@1e87f5c0, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@394ab044, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@8206075, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@24688946, org.springframework.security.web.access.ExceptionTranslationFilter@6cbc6e8, org.springframework.security.web.access.intercept.AuthorizationFilter@3467b97b]
-2026-03-16 14:38:24.935  INFO 5295 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
-2026-03-16 14:38:24.936  INFO 5295 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-03-16 14:38:24.938  INFO 5295 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
-2026-03-16 14:38:25.033  INFO 5295 --- [           main] ._.g.c.AnalysisControllerIntegrationTest : Started AnalysisControllerIntegrationTest in 9.57 seconds (process running for 14.248)
-2026-03-16 14:38:25.177 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:22.300  INFO 4631 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoint(s) beneath base path '/actuator'
+2026-03-16 15:43:22.377  INFO 4631 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@5451c2bd, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1ae1d9cd, org.springframework.security.web.context.SecurityContextHolderFilter@228f78b9, org.springframework.security.web.header.HeaderWriterFilter@36328626, org.springframework.web.filter.CorsFilter@1e3925c5, org.springframework.security.web.authentication.logout.LogoutFilter@351b3194, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@42cf55dd, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@17781fe8, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@29aaa084, org.springframework.security.web.access.ExceptionTranslationFilter@783c9103, org.springframework.security.web.access.intercept.AuthorizationFilter@4663d67]
+2026-03-16 15:43:23.103  INFO 4631 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-03-16 15:43:23.104  INFO 4631 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-03-16 15:43:23.106  INFO 4631 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-03-16 15:43:23.202  INFO 4631 --- [           main] ._.g.c.AnalysisControllerIntegrationTest : Started AnalysisControllerIntegrationTest in 8.738 seconds (process running for 12.796)
+2026-03-16 15:43:23.359 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     select
         td1_0.id,
         td1_0.bler,
@@ -159,7 +159,7 @@ Hibernate:
         td1_0.update_time 
     from
         test_data td1_0
-2026-03-16 14:38:25.295 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.473 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     delete 
     from
         test_data 
@@ -171,7 +171,7 @@ Hibernate:
         test_data 
     where
         id=?
-2026-03-16 14:38:25.310 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.491 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     insert 
     into
         test_data
@@ -185,7 +185,7 @@ Hibernate:
         (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
     values
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.327 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.509 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     insert 
     into
         test_data
@@ -199,10 +199,10 @@ Hibernate:
         (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
     values
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.526 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - RE=156, PRB=273, 调制阶数=8, 层数=4, 编码效率=0.925, Nifo=1260604.0
-2026-03-16 14:38:25.526 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - TBS计算: Nifo01=1245184.0, modulationOrder=8, TBS=1245184.0
-2026-03-16 14:38:25.527  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 获取TDD帧结构周期，frameType=null
-2026-03-16 14:38:25.527 ERROR 5295 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算失败: Cannot invoke "String.hashCode()" because "<local4>" is null
+2026-03-16 15:43:23.683 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - RE=156, PRB=273, 调制阶数=8, 层数=4, 编码效率=0.925, Nifo=1260604.0
+2026-03-16 15:43:23.684 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - TBS计算: Nifo01=1245184.0, modulationOrder=8, TBS=1245184.0
+2026-03-16 15:43:23.684  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 获取TDD帧结构周期，frameType=null
+2026-03-16 15:43:23.684 ERROR 4631 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算失败: Cannot invoke "String.hashCode()" because "<local4>" is null
 
 java.lang.NullPointerException: Cannot invoke "String.hashCode()" because "<local4>" is null
 	at com._5ganalysisrate.g5rate.service.AnalysisService.getTDDFramePeriod(AnalysisService.java:699) ~[classes/:na]
@@ -220,7 +220,7 @@ java.lang.NullPointerException: Cannot invoke "String.hashCode()" because "<loca
 	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.4.jar:6.1.4]
 	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717) ~[spring-aop-6.1.4.jar:6.1.4]
 	at com._5ganalysisrate.g5rate.service.AnalysisService$$SpringCGLIB$$0.calculatePeakRate(<generated>) ~[classes/:na]
-	at com._5ganalysisrate.g5rate.controller.AnalysisController.calculatePeakRate(AnalysisController.java:140) ~[classes/:na]
+	at com._5ganalysisrate.g5rate.controller.AnalysisController.calculatePeakRate(AnalysisController.java:139) ~[classes/:na]
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
 	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:259) ~[spring-web-6.1.4.jar:6.1.4]
@@ -416,7 +416,7 @@ java.lang.NullPointerException: Cannot invoke "String.hashCode()" because "<loca
 	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765)
 	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717)
 	at com._5ganalysisrate.g5rate.service.AnalysisService$$SpringCGLIB$$0.calculatePeakRate(<generated>)
-	at com._5ganalysisrate.g5rate.controller.AnalysisController.calculatePeakRate(AnalysisController.java:140)
+	at com._5ganalysisrate.g5rate.controller.AnalysisController.calculatePeakRate(AnalysisController.java:139)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
 	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:259)
@@ -601,19 +601,8 @@ Caused by: java.lang.NullPointerException: Cannot invoke "String.hashCode()" bec
 	... 192 more
 ]]></system-err>
   </testcase>
-  <testcase name="testGetRateDistributionWithRanges" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.06">
-    <failure message="JSON path &quot;$.code&quot; expected:&lt;200&gt; but was:&lt;500&gt;" type="java.lang.AssertionError"><![CDATA[java.lang.AssertionError: JSON path "$.code" expected:<200> but was:<500>
-	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
-	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
-	at org.springframework.test.util.JsonPathExpectationsHelper.assertValue(JsonPathExpectationsHelper.java:123)
-	at org.springframework.test.web.servlet.result.JsonPathResultMatchers.lambda$value$2(JsonPathResultMatchers.java:111)
-	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
-	at com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest.testGetRateDistributionWithRanges(AnalysisControllerIntegrationTest.java:103)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-]]></failure>
-    <system-out><![CDATA[2026-03-16 14:38:25.667 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+  <testcase name="testGetRateDistributionWithRanges" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.068">
+    <system-out><![CDATA[2026-03-16 15:43:23.804 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     select
         td1_0.id,
         td1_0.bler,
@@ -643,7 +632,7 @@ Hibernate:
         td1_0.update_time 
     from
         test_data td1_0
-2026-03-16 14:38:25.672 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.808 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     delete 
     from
         test_data 
@@ -655,7 +644,7 @@ Hibernate:
         test_data 
     where
         id=?
-2026-03-16 14:38:25.672 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.809 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     delete 
     from
         test_data 
@@ -667,7 +656,7 @@ Hibernate:
         test_data 
     where
         id=?
-2026-03-16 14:38:25.676 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.811 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     insert 
     into
         test_data
@@ -681,7 +670,7 @@ Hibernate:
         (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
     values
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.679 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.813 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     insert 
     into
         test_data
@@ -695,508 +684,11 @@ Hibernate:
         (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
     values
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.697 ERROR 5295 --- [           main] c._.g.config.GlobalExceptionHandler      : 业务异常
-
-org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `java.util.LinkedHashMap<java.lang.String,java.util.List<java.util.Map<java.lang.String,java.lang.Double>>>` from Array value (token `JsonToken.START_ARRAY`)
-	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:406) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.read(AbstractJackson2HttpMessageConverter.java:354) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodArgumentResolver.readWithMessageConverters(AbstractMessageConverterMethodArgumentResolver.java:184) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.readWithMessageConverters(RequestResponseBodyMethodProcessor.java:159) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.resolveArgument(RequestResponseBodyMethodProcessor.java:134) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument(HandlerMethodArgumentResolverComposite.java:122) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues(InvocableHandlerMethod.java:228) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:182) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:920) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:830) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590) ~[tomcat-embed-core-10.1.19.jar:6.0]
-	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.test.web.servlet.TestDispatcherServlet.service(TestDispatcherServlet.java:72) ~[spring-test-6.1.4.jar:6.1.4]
-	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.19.jar:6.0]
-	at org.springframework.mock.web.MockFilterChain$ServletFilterProxy.doFilter(MockFilterChain.java:165) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:479) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:340) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:82) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:128) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.2.2.jar:6.2.2]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195) ~[spring-webmvc-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230) ~[spring-security-config-6.2.2.jar:6.2.2]
-	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:109) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar:6.1.4]
-	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132) ~[spring-test-6.1.4.jar:6.1.4]
-	at org.springframework.test.web.servlet.MockMvc.perform(MockMvc.java:201) ~[spring-test-6.1.4.jar:6.1.4]
-	at com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest.testGetRateDistributionWithRanges(AnalysisControllerIntegrationTest.java:99) ~[test-classes/:na]
-	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
-	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
-	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728) ~[junit-platform-commons-1.10.2.jar:1.10.2]
-	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69) ~[junit-jupiter-engine-5.10.2.jar:5.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596) ~[na:na]
-	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596) ~[na:na]
-	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54) ~[junit-platform-engine-1.10.2.jar:1.10.2]
-	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
-	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
-	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
-	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
-	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
-	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
-	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
-	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
-	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47) ~[junit-platform-launcher-1.10.2.jar:1.10.2]
-	at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56) ~[surefire-junit-platform-3.1.2.jar:3.1.2]
-	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184) ~[surefire-junit-platform-3.1.2.jar:3.1.2]
-	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148) ~[surefire-junit-platform-3.1.2.jar:3.1.2]
-	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122) ~[surefire-junit-platform-3.1.2.jar:3.1.2]
-	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385) ~[surefire-booter-3.1.2.jar:3.1.2]
-	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162) ~[surefire-booter-3.1.2.jar:3.1.2]
-	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507) ~[surefire-booter-3.1.2.jar:3.1.2]
-	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495) ~[surefire-booter-3.1.2.jar:3.1.2]
-Caused by: com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot deserialize value of type `java.util.LinkedHashMap<java.lang.String,java.util.List<java.util.Map<java.lang.String,java.lang.Double>>>` from Array value (token `JsonToken.START_ARRAY`)
- at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 1, column: 1]
-	at com.fasterxml.jackson.databind.exc.MismatchedInputException.from(MismatchedInputException.java:59) ~[jackson-databind-2.15.4.jar:2.15.4]
-	at com.fasterxml.jackson.databind.DeserializationContext.reportInputMismatch(DeserializationContext.java:1752) ~[jackson-databind-2.15.4.jar:2.15.4]
-	at com.fasterxml.jackson.databind.DeserializationContext.handleUnexpectedToken(DeserializationContext.java:1526) ~[jackson-databind-2.15.4.jar:2.15.4]
-	at com.fasterxml.jackson.databind.deser.std.StdDeserializer._deserializeFromArray(StdDeserializer.java:222) ~[jackson-databind-2.15.4.jar:2.15.4]
-	at com.fasterxml.jackson.databind.deser.std.MapDeserializer.deserialize(MapDeserializer.java:457) ~[jackson-databind-2.15.4.jar:2.15.4]
-	at com.fasterxml.jackson.databind.deser.std.MapDeserializer.deserialize(MapDeserializer.java:32) ~[jackson-databind-2.15.4.jar:2.15.4]
-	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:323) ~[jackson-databind-2.15.4.jar:2.15.4]
-	at com.fasterxml.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:2105) ~[jackson-databind-2.15.4.jar:2.15.4]
-	at com.fasterxml.jackson.databind.ObjectReader.readValue(ObjectReader.java:1481) ~[jackson-databind-2.15.4.jar:2.15.4]
-	at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:395) ~[spring-web-6.1.4.jar:6.1.4]
-	... 181 common frames omitted
-
-
-MockHttpServletRequest:
-      HTTP Method = POST
-      Request URI = /analysis/rate-distribution-chart
-       Parameters = {}
-          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"51"]
-             Body = [{"max":100.0,"min":0.0},{"max":200.0,"min":100.0}]
-    Session Attrs = {}
-
-Handler:
-             Type = com._5ganalysisrate.g5rate.controller.AnalysisController
-           Method = com._5ganalysisrate.g5rate.controller.AnalysisController#getRateDistribution(Map)
-
-Async:
-    Async started = false
-     Async result = null
-
-Resolved Exception:
-             Type = org.springframework.http.converter.HttpMessageNotReadableException
-
-ModelAndView:
-        View name = null
-             View = null
-            Model = null
-
-FlashMap:
-       Attributes = null
-
-MockHttpServletResponse:
-           Status = 200
-    Error message = null
-          Headers = [Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Type:"application/json;charset=UTF-8", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0"]
-     Content type = application/json;charset=UTF-8
-             Body = {"code":500,"message":"操作失败：JSON parse error: Cannot deserialize value of type `java.util.LinkedHashMap<java.lang.String,java.util.List<java.util.Map<java.lang.String,java.lang.Double>>>` from Array value (token `JsonToken.START_ARRAY`)","data":null}
-    Forwarded URL = null
-   Redirected URL = null
-          Cookies = []
-]]></system-out>
-  </testcase>
-  <testcase name="testCalculatePeakRate_FDD" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.041">
-    <system-out><![CDATA[2026-03-16 14:38:25.732 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    select
-        td1_0.id,
-        td1_0.bler,
-        td1_0.create_time,
-        td1_0.mac_throughput,
-        td1_0.mcs,
-        td1_0.prb_num,
-        td1_0.mimo_rank,
-        td1_0.rsrp,
-        td1_0.sinr,
-        td1_0.test_time,
-        td1_0.update_time 
-    from
-        test_data td1_0
-Hibernate: 
-    select
-        td1_0.id,
-        td1_0.bler,
-        td1_0.create_time,
-        td1_0.mac_throughput,
-        td1_0.mcs,
-        td1_0.prb_num,
-        td1_0.mimo_rank,
-        td1_0.rsrp,
-        td1_0.sinr,
-        td1_0.test_time,
-        td1_0.update_time 
-    from
-        test_data td1_0
-2026-03-16 14:38:25.736 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-Hibernate: 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-2026-03-16 14:38:25.737 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-Hibernate: 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-2026-03-16 14:38:25.740 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-Hibernate: 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.743 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-Hibernate: 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.750 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - RE=156, PRB=273, 调制阶数=8, 层数=4, 编码效率=0.925, Nifo=1260604.0
-2026-03-16 14:38:25.750 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - TBS计算: Nifo01=1245184.0, modulationOrder=8, TBS=1245184.0
-2026-03-16 14:38:25.751  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算: mode=FDD, frameType=null, bandwidth=100.0, dlSlots=10, specialSlots=null, modulationOrder=8, dlStreams=4, PRB=273, TBS=1245184.0, 结果=1.245184 Gbps
-]]></system-out>
-  </testcase>
-  <testcase name="testCalculatePeakRate_TDD" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.027">
-    <system-out><![CDATA[2026-03-16 14:38:25.771 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    select
-        td1_0.id,
-        td1_0.bler,
-        td1_0.create_time,
-        td1_0.mac_throughput,
-        td1_0.mcs,
-        td1_0.prb_num,
-        td1_0.mimo_rank,
-        td1_0.rsrp,
-        td1_0.sinr,
-        td1_0.test_time,
-        td1_0.update_time 
-    from
-        test_data td1_0
-Hibernate: 
-    select
-        td1_0.id,
-        td1_0.bler,
-        td1_0.create_time,
-        td1_0.mac_throughput,
-        td1_0.mcs,
-        td1_0.prb_num,
-        td1_0.mimo_rank,
-        td1_0.rsrp,
-        td1_0.sinr,
-        td1_0.test_time,
-        td1_0.update_time 
-    from
-        test_data td1_0
-2026-03-16 14:38:25.774 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-Hibernate: 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-2026-03-16 14:38:25.774 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-Hibernate: 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-2026-03-16 14:38:25.777 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-Hibernate: 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.779 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-Hibernate: 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.786 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - RE=156, PRB=273, 调制阶数=8, 层数=4, 编码效率=0.925, Nifo=1260604.0
-2026-03-16 14:38:25.787 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - TBS计算: Nifo01=1245184.0, modulationOrder=8, TBS=1245184.0
-2026-03-16 14:38:25.787  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 获取TDD帧结构周期，frameType=FRAME1
-2026-03-16 14:38:25.787  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算: mode=TDD, frameType=FRAME1, bandwidth=100.0, dlSlots=8, specialSlots=2, modulationOrder=8, dlStreams=4, PRB=273, TBS=1245184.0, 结果=6.22592 Gbps
-]]></system-out>
-  </testcase>
-  <testcase name="testGetRateDistribution" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.05">
-    <system-out><![CDATA[2026-03-16 14:38:25.799 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    select
-        td1_0.id,
-        td1_0.bler,
-        td1_0.create_time,
-        td1_0.mac_throughput,
-        td1_0.mcs,
-        td1_0.prb_num,
-        td1_0.mimo_rank,
-        td1_0.rsrp,
-        td1_0.sinr,
-        td1_0.test_time,
-        td1_0.update_time 
-    from
-        test_data td1_0
-Hibernate: 
-    select
-        td1_0.id,
-        td1_0.bler,
-        td1_0.create_time,
-        td1_0.mac_throughput,
-        td1_0.mcs,
-        td1_0.prb_num,
-        td1_0.mimo_rank,
-        td1_0.rsrp,
-        td1_0.sinr,
-        td1_0.test_time,
-        td1_0.update_time 
-    from
-        test_data td1_0
-2026-03-16 14:38:25.804 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-Hibernate: 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-2026-03-16 14:38:25.805 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-Hibernate: 
-    delete 
-    from
-        test_data 
-    where
-        id=?
-2026-03-16 14:38:25.808 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-Hibernate: 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.811 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-Hibernate: 
-    insert 
-    into
-        test_data
-        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.817  INFO 5295 --- [           main] c._.g.controller.AnalysisController      : 收到速率分布分析请求，自定义区间: 未提供
-2026-03-16 14:38:25.818  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 开始获取速率分布数据
-2026-03-16 14:38:25.818  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 清除缓存，确保获取最新速率数据
-2026-03-16 14:38:25.827 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.827  INFO 4631 --- [           main] c._.g.controller.AnalysisController      : 收到速率分布分析请求，自定义区间: 2
+2026-03-16 15:43:23.827  INFO 4631 --- [           main] c._.g.controller.AnalysisController      : 自定义区间详情: 0.0-100.0, 100.0-200.0, 
+2026-03-16 15:43:23.828  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 开始获取速率分布数据
+2026-03-16 15:43:23.829  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 清除缓存，确保获取最新速率数据
+2026-03-16 15:43:23.838 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     select
         td1_0.id,
         td1_0.bler,
@@ -1238,14 +730,17 @@ Hibernate:
         ? rows 
     fetch
         first ? rows only
-2026-03-16 14:38:25.834  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 已获取 2 条速率数据
-2026-03-16 14:38:25.834  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 速率数据总数: 2
-2026-03-16 14:38:25.835  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 速率数据统计: 最小值=80.0, 最大值=100.0, 平均值=90.0
-2026-03-16 14:38:25.837  INFO 5295 --- [           main] c._.g.controller.AnalysisController      : 速率分布API耗时: 19ms, 自定义区间: false, 返回数据点: 2
+2026-03-16 15:43:23.845  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 已获取 2 条速率数据
+2026-03-16 15:43:23.846  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 速率数据总数: 2
+2026-03-16 15:43:23.847  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 接收到自定义速率区间划分请求。速率数据统计: 最小值=80.0, 最大值=100.0, 平均值=90.0
+2026-03-16 15:43:23.847  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 自定义区间数量: 2
+2026-03-16 15:43:23.848  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 区间 [0.0-100.0 Mbps]: 数量=1, 百分比=50.0%
+2026-03-16 15:43:23.849  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 区间 [100.0-200.0 Mbps]: 数量=1, 百分比=50.0%
+2026-03-16 15:43:23.850  INFO 4631 --- [           main] c._.g.controller.AnalysisController      : 速率分布API耗时: 22ms, 自定义区间: true, 返回数据点: 2
 ]]></system-out>
   </testcase>
-  <testcase name="testGetTimeSeriesData" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.049">
-    <system-out><![CDATA[2026-03-16 14:38:25.850 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+  <testcase name="testCalculatePeakRate_FDD" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.03">
+    <system-out><![CDATA[2026-03-16 15:43:23.874 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     select
         td1_0.id,
         td1_0.bler,
@@ -1275,7 +770,7 @@ Hibernate:
         td1_0.update_time 
     from
         test_data td1_0
-2026-03-16 14:38:25.853 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.877 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     delete 
     from
         test_data 
@@ -1287,7 +782,7 @@ Hibernate:
         test_data 
     where
         id=?
-2026-03-16 14:38:25.853 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.878 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     delete 
     from
         test_data 
@@ -1299,7 +794,7 @@ Hibernate:
         test_data 
     where
         id=?
-2026-03-16 14:38:25.856 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.880 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     insert 
     into
         test_data
@@ -1313,7 +808,7 @@ Hibernate:
         (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
     values
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.858 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.882 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     insert 
     into
         test_data
@@ -1327,10 +822,187 @@ Hibernate:
         (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
     values
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
-2026-03-16 14:38:25.868  INFO 5295 --- [           main] c._.g.controller.AnalysisController      : 接收到多维度分析请求，维度: [rsrp, sinr]
-2026-03-16 14:38:25.869  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 开始获取多维度分析数据，维度: [rsrp, sinr]
-2026-03-16 14:38:25.869  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 清除缓存，确保获取最新数据
-2026-03-16 14:38:25.871 DEBUG 5295 --- [           main] org.hibernate.SQL                        : 
+2026-03-16 15:43:23.889 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - RE=156, PRB=273, 调制阶数=8, 层数=4, 编码效率=0.925, Nifo=1260604.0
+2026-03-16 15:43:23.889 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - TBS计算: Nifo01=1245184.0, modulationOrder=8, TBS=1245184.0
+2026-03-16 15:43:23.889  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算: mode=FDD, frameType=null, bandwidth=100.0, dlSlots=10, specialSlots=null, modulationOrder=8, dlStreams=4, PRB=273, TBS=1245184.0, 结果=1.245184 Gbps
+]]></system-out>
+  </testcase>
+  <testcase name="testCalculatePeakRate_TDD" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.024">
+    <system-out><![CDATA[2026-03-16 15:43:23.906 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    select
+        td1_0.id,
+        td1_0.bler,
+        td1_0.create_time,
+        td1_0.mac_throughput,
+        td1_0.mcs,
+        td1_0.prb_num,
+        td1_0.mimo_rank,
+        td1_0.rsrp,
+        td1_0.sinr,
+        td1_0.test_time,
+        td1_0.update_time 
+    from
+        test_data td1_0
+Hibernate: 
+    select
+        td1_0.id,
+        td1_0.bler,
+        td1_0.create_time,
+        td1_0.mac_throughput,
+        td1_0.mcs,
+        td1_0.prb_num,
+        td1_0.mimo_rank,
+        td1_0.rsrp,
+        td1_0.sinr,
+        td1_0.test_time,
+        td1_0.update_time 
+    from
+        test_data td1_0
+2026-03-16 15:43:23.909 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+2026-03-16 15:43:23.909 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+2026-03-16 15:43:23.911 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+2026-03-16 15:43:23.913 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+2026-03-16 15:43:23.920 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - RE=156, PRB=273, 调制阶数=8, 层数=4, 编码效率=0.925, Nifo=1260604.0
+2026-03-16 15:43:23.920 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算 - TBS计算: Nifo01=1245184.0, modulationOrder=8, TBS=1245184.0
+2026-03-16 15:43:23.920  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 获取TDD帧结构周期，frameType=FRAME1
+2026-03-16 15:43:23.920  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 峰值速率计算: mode=TDD, frameType=FRAME1, bandwidth=100.0, dlSlots=8, specialSlots=2, modulationOrder=8, dlStreams=4, PRB=273, TBS=1245184.0, 结果=6.22592 Gbps
+]]></system-out>
+  </testcase>
+  <testcase name="testGetRateDistribution" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.031">
+    <system-out><![CDATA[2026-03-16 15:43:23.930 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    select
+        td1_0.id,
+        td1_0.bler,
+        td1_0.create_time,
+        td1_0.mac_throughput,
+        td1_0.mcs,
+        td1_0.prb_num,
+        td1_0.mimo_rank,
+        td1_0.rsrp,
+        td1_0.sinr,
+        td1_0.test_time,
+        td1_0.update_time 
+    from
+        test_data td1_0
+Hibernate: 
+    select
+        td1_0.id,
+        td1_0.bler,
+        td1_0.create_time,
+        td1_0.mac_throughput,
+        td1_0.mcs,
+        td1_0.prb_num,
+        td1_0.mimo_rank,
+        td1_0.rsrp,
+        td1_0.sinr,
+        td1_0.test_time,
+        td1_0.update_time 
+    from
+        test_data td1_0
+2026-03-16 15:43:23.933 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+2026-03-16 15:43:23.933 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+2026-03-16 15:43:23.938 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+2026-03-16 15:43:23.940 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+2026-03-16 15:43:23.945  INFO 4631 --- [           main] c._.g.controller.AnalysisController      : 收到速率分布分析请求，自定义区间: 未提供
+2026-03-16 15:43:23.946  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 开始获取速率分布数据
+2026-03-16 15:43:23.946  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 清除缓存，确保获取最新速率数据
+2026-03-16 15:43:23.949 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
     select
         td1_0.id,
         td1_0.bler,
@@ -1372,18 +1044,152 @@ Hibernate:
         ? rows 
     fetch
         first ? rows only
-2026-03-16 14:38:25.873  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 从数据库获取到 2 条数据记录
-2026-03-16 14:38:25.873  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 找到2条测试数据，准备进行多维度分析
-2026-03-16 14:38:25.873  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : 数据点总数: 2, 采样间隔: 1, 预计采样后点数: ~2
-2026-03-16 14:38:25.874  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : RSRP数据统计: 最小值=-90.0, 最大值=-85.0, 平均值=-87.5, 数据点数=2
-2026-03-16 14:38:25.874 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : 维度 rsrp 最终数据点数: 2
-2026-03-16 14:38:25.875  INFO 5295 --- [           main] c._.g5rate.service.AnalysisService       : RSRP维度最终采样: 数据点数=2
-2026-03-16 14:38:25.875 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : RSRP采样点0: 时间=15:38:25.855, 值=-90.0dBm
-2026-03-16 14:38:25.875 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : RSRP采样点1: 时间=14:38:25.855, 值=-85.0dBm
-2026-03-16 14:38:25.875 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : RSRP采样点0: 时间=15:38:25.855, 值=-90.0dBm
-2026-03-16 14:38:25.875 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : RSRP采样点1: 时间=14:38:25.855, 值=-85.0dBm
-2026-03-16 14:38:25.875 DEBUG 5295 --- [           main] c._.g5rate.service.AnalysisService       : 维度 sinr 最终数据点数: 2
-2026-03-16 14:38:25.876  INFO 5295 --- [           main] c._.g.controller.AnalysisController      : 多维度分析API耗时: 7ms, 维度: [rsrp, sinr], 数据点数: 4
+2026-03-16 15:43:23.951  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 已获取 2 条速率数据
+2026-03-16 15:43:23.951  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 速率数据总数: 2
+2026-03-16 15:43:23.952  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 速率数据统计: 最小值=80.0, 最大值=100.0, 平均值=90.0
+2026-03-16 15:43:23.953  INFO 4631 --- [           main] c._.g.controller.AnalysisController      : 速率分布API耗时: 7ms, 自定义区间: false, 返回数据点: 2
+]]></system-out>
+  </testcase>
+  <testcase name="testGetTimeSeriesData" classname="com._5ganalysisrate.g5rate.controller.AnalysisControllerIntegrationTest" time="0.036">
+    <system-out><![CDATA[2026-03-16 15:43:23.962 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    select
+        td1_0.id,
+        td1_0.bler,
+        td1_0.create_time,
+        td1_0.mac_throughput,
+        td1_0.mcs,
+        td1_0.prb_num,
+        td1_0.mimo_rank,
+        td1_0.rsrp,
+        td1_0.sinr,
+        td1_0.test_time,
+        td1_0.update_time 
+    from
+        test_data td1_0
+Hibernate: 
+    select
+        td1_0.id,
+        td1_0.bler,
+        td1_0.create_time,
+        td1_0.mac_throughput,
+        td1_0.mcs,
+        td1_0.prb_num,
+        td1_0.mimo_rank,
+        td1_0.rsrp,
+        td1_0.sinr,
+        td1_0.test_time,
+        td1_0.update_time 
+    from
+        test_data td1_0
+2026-03-16 15:43:23.965 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+2026-03-16 15:43:23.965 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        test_data 
+    where
+        id=?
+2026-03-16 15:43:23.968 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+2026-03-16 15:43:23.970 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+Hibernate: 
+    insert 
+    into
+        test_data
+        (bler, create_time, mac_throughput, mcs, prb_num, mimo_rank, rsrp, sinr, test_time, update_time, id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, default)
+2026-03-16 15:43:23.977  INFO 4631 --- [           main] c._.g.controller.AnalysisController      : 接收到多维度分析请求，维度: [rsrp, sinr]
+2026-03-16 15:43:23.977  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 开始获取多维度分析数据，维度: [rsrp, sinr]
+2026-03-16 15:43:23.977  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 清除缓存，确保获取最新数据
+2026-03-16 15:43:23.979 DEBUG 4631 --- [           main] org.hibernate.SQL                        : 
+    select
+        td1_0.id,
+        td1_0.bler,
+        td1_0.create_time,
+        td1_0.mac_throughput,
+        td1_0.mcs,
+        td1_0.prb_num,
+        td1_0.mimo_rank,
+        td1_0.rsrp,
+        td1_0.sinr,
+        td1_0.test_time,
+        td1_0.update_time 
+    from
+        test_data td1_0 
+    order by
+        td1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        td1_0.id,
+        td1_0.bler,
+        td1_0.create_time,
+        td1_0.mac_throughput,
+        td1_0.mcs,
+        td1_0.prb_num,
+        td1_0.mimo_rank,
+        td1_0.rsrp,
+        td1_0.sinr,
+        td1_0.test_time,
+        td1_0.update_time 
+    from
+        test_data td1_0 
+    order by
+        td1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-03-16 15:43:23.980  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 从数据库获取到 2 条数据记录
+2026-03-16 15:43:23.980  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 找到2条测试数据，准备进行多维度分析
+2026-03-16 15:43:23.980  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : 数据点总数: 2, 采样间隔: 1, 预计采样后点数: ~2
+2026-03-16 15:43:23.981  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : RSRP数据统计: 最小值=-90.0, 最大值=-85.0, 平均值=-87.5, 数据点数=2
+2026-03-16 15:43:23.981 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : 维度 rsrp 最终数据点数: 2
+2026-03-16 15:43:23.981  INFO 4631 --- [           main] c._.g5rate.service.AnalysisService       : RSRP维度最终采样: 数据点数=2
+2026-03-16 15:43:23.981 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : RSRP采样点0: 时间=16:43:23.968, 值=-90.0dBm
+2026-03-16 15:43:23.981 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : RSRP采样点1: 时间=15:43:23.968, 值=-85.0dBm
+2026-03-16 15:43:23.981 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : RSRP采样点0: 时间=16:43:23.968, 值=-90.0dBm
+2026-03-16 15:43:23.981 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : RSRP采样点1: 时间=15:43:23.968, 值=-85.0dBm
+2026-03-16 15:43:23.981 DEBUG 4631 --- [           main] c._.g5rate.service.AnalysisService       : 维度 sinr 最终数据点数: 2
+2026-03-16 15:43:23.982  INFO 4631 --- [           main] c._.g.controller.AnalysisController      : 多维度分析API耗时: 4ms, 维度: [rsrp, sinr], 数据点数: 4
 ]]></system-out>
   </testcase>
 </testsuite>

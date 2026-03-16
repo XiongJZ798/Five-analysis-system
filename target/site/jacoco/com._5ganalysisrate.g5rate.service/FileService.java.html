@@ -1,0 +1,919 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Five-analysis-system</a> &gt; <a href="index.source.html" class="el_package">com._5ganalysisrate.g5rate.service</a> &gt; <span class="el_source">FileService.java</span></div><h1>FileService.java</h1><pre class="source lang-java linenums">package com._5ganalysisrate.g5rate.service;
+
+import com._5ganalysisrate.g5rate.dto.ApiResponse;
+import com._5ganalysisrate.g5rate.model.TestData;
+import com._5ganalysisrate.g5rate.repository.TestDataRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+<span class="fc" id="L20">@Slf4j</span>
+@Service
+<span class="fc" id="L22">@RequiredArgsConstructor</span>
+public class FileService {
+
+    private final TestDataRepository testDataRepository;
+
+    // 支持的日期时间格式
+<span class="fc" id="L28">    private static final DateTimeFormatter[] DATE_FORMATTERS = {</span>
+<span class="fc" id="L29">        DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss.SSS&quot;),</span>
+<span class="fc" id="L30">        DateTimeFormatter.ofPattern(&quot;yyyy/MM/dd HH:mm:ss.SSS&quot;),</span>
+<span class="fc" id="L31">        DateTimeFormatter.ofPattern(&quot;yyyy.MM.dd HH:mm:ss.SSS&quot;),</span>
+<span class="fc" id="L32">        DateTimeFormatter.ofPattern(&quot;HH:mm:ss.SSS&quot;),</span>
+<span class="fc" id="L33">        DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;),</span>
+<span class="fc" id="L34">        DateTimeFormatter.ofPattern(&quot;yyyy/MM/dd HH:mm:ss&quot;),</span>
+<span class="fc" id="L35">        DateTimeFormatter.ofPattern(&quot;yyyy.MM.dd HH:mm:ss&quot;),</span>
+<span class="fc" id="L36">        DateTimeFormatter.ofPattern(&quot;HH:mm:ss&quot;),</span>
+<span class="fc" id="L37">        DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;),</span>
+<span class="fc" id="L38">        DateTimeFormatter.ofPattern(&quot;yyyy/MM/dd HH:mm&quot;),</span>
+<span class="fc" id="L39">        DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd&quot;),</span>
+<span class="fc" id="L40">        DateTimeFormatter.ofPattern(&quot;yyyy/MM/dd&quot;),</span>
+        DateTimeFormatter.ISO_LOCAL_DATE_TIME
+    };
+
+    public ApiResponse&lt;?&gt; processExcelFile(MultipartFile file) {
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (file.isEmpty()) {</span>
+<span class="fc" id="L46">            return ApiResponse.error(400, &quot;文件不能为空&quot;);</span>
+        }
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (file.getSize() &gt; 10 * 1024 * 1024) {</span>
+<span class="fc" id="L50">            return ApiResponse.error(400, &quot;文件大小不能超过10MB&quot;);</span>
+        }
+
+<span class="fc" id="L53">        String fileName = file.getOriginalFilename();</span>
+<span class="pc bpc" id="L54" title="2 of 6 branches missed.">        if (fileName == null || (!fileName.endsWith(&quot;.xlsx&quot;) &amp;&amp; !fileName.endsWith(&quot;.xls&quot;))) {</span>
+<span class="fc" id="L55">            return ApiResponse.error(400, &quot;只支持Excel文件格式(.xls/.xlsx)&quot;);</span>
+        }
+
+<span class="fc" id="L58">        List&lt;String&gt; errorMessages = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L59">        List&lt;TestData&gt; dataList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L61">        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {</span>
+<span class="fc" id="L62">            Sheet sheet = workbook.getSheetAt(0);</span>
+            
+            // 验证Excel文件结构
+<span class="fc" id="L65">            ApiResponse&lt;?&gt; validationResponse = validateExcelStructure(sheet);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">            if (validationResponse.getCode() != 200) {</span>
+<span class="fc" id="L67">                return validationResponse;</span>
+            }
+
+<span class="fc" id="L70">            int validRowCount = 0; // 有效行计数器</span>
+<span class="fc" id="L71">            int lastRowNum = sheet.getLastRowNum();</span>
+<span class="fc" id="L72">            boolean foundSummaryRow = false; // 是否找到了总结/平均行</span>
+            
+<span class="fc" id="L74">            log.info(&quot;开始处理Excel文件，总行数: {}&quot;, lastRowNum);</span>
+            
+            // 记录平均值行索引，默认为-1表示没有找到
+<span class="fc" id="L77">            int averageRowIndex = -1;</span>
+            
+            // 尝试检测最后一行是否是平均值行（通常带有&quot;平均&quot;或使用特殊格式）
+<span class="fc" id="L80">            Row lastRow = sheet.getRow(lastRowNum);</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">            if (lastRow != null) {</span>
+<span class="fc" id="L82">                Cell firstCell = lastRow.getCell(0);</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">                if (firstCell != null) {</span>
+<span class="fc" id="L84">                    String cellValue = &quot;&quot;;</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">                    if (firstCell.getCellType() == CellType.STRING) {</span>
+<span class="nc" id="L86">                        cellValue = firstCell.getStringCellValue();</span>
+<span class="nc" id="L87">                        log.info(&quot;最后一行首列内容: {}&quot;, cellValue);</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                    } else if (firstCell.getCellType() == CellType.NUMERIC) {</span>
+                        // 检查是否是数值而不是时间格式
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">                        if (!DateUtil.isCellDateFormatted(firstCell)) {</span>
+<span class="fc" id="L91">                            double value = firstCell.getNumericCellValue();</span>
+<span class="fc" id="L92">                            log.info(&quot;最后一行首列是数值: {}&quot;, value);</span>
+                            
+                            // 如果前几行都是时间格式但最后一行是数值，很可能是平均值行
+<span class="fc bfc" id="L95" title="All 2 branches covered.">                            for (int i = lastRowNum - 3; i &lt;= lastRowNum - 1; i++) {</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">                                if (i &lt; 1) continue;</span>
+<span class="nc" id="L97">                                Row checkRow = sheet.getRow(i);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                                if (checkRow != null) {</span>
+<span class="nc" id="L99">                                    Cell checkCell = checkRow.getCell(0);</span>
+<span class="nc bnc" id="L100" title="All 4 branches missed.">                                    if (checkCell != null &amp;&amp; DateUtil.isCellDateFormatted(checkCell)) {</span>
+<span class="nc" id="L101">                                        averageRowIndex = lastRowNum;</span>
+<span class="nc" id="L102">                                        foundSummaryRow = true;</span>
+<span class="nc" id="L103">                                        log.info(&quot;检测到第{}行可能是平均值/汇总行（基于格式差异判断）&quot;, lastRowNum + 1);</span>
+<span class="nc" id="L104">                                        break;</span>
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 通过文本内容判断是否为平均值行
+<span class="pc bpc" id="L112" title="2 of 4 branches missed.">                    if (cellValue.contains(&quot;平均&quot;) || cellValue.contains(&quot;average&quot;) || </span>
+<span class="pc bpc" id="L113" title="2 of 4 branches missed.">                        cellValue.contains(&quot;avg&quot;) || cellValue.contains(&quot;mean&quot;) ||</span>
+<span class="pc bpc" id="L114" title="2 of 4 branches missed.">                        cellValue.contains(&quot;汇总&quot;) || cellValue.contains(&quot;summary&quot;) ||</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">                        cellValue.contains(&quot;total&quot;)) {</span>
+<span class="nc" id="L116">                        averageRowIndex = lastRowNum;</span>
+<span class="nc" id="L117">                        foundSummaryRow = true;</span>
+<span class="nc" id="L118">                        log.info(&quot;检测到第{}行是平均值/汇总行&quot;, lastRowNum + 1);</span>
+                    }
+                }
+            }
+            
+            // 增强平均值行检测：检查额外的数值特征
+            // 有时平均值行的首单元格可能不是明确的文本标记，但其格式和内容与其他行明显不同
+<span class="pc bpc" id="L125" title="2 of 4 branches missed.">            if (!foundSummaryRow &amp;&amp; lastRowNum &gt; 10) {</span>
+                // 检查最后一行的时间格式
+<span class="nc" id="L127">                Row lastDataRow = sheet.getRow(lastRowNum);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">                if (lastDataRow != null) {</span>
+<span class="nc" id="L129">                    Cell timeCell = lastDataRow.getCell(0);</span>
+                    
+                    // 如果最后一行首列不是日期格式，但前面的行都是，这可能是平均值行
+<span class="nc bnc" id="L132" title="All 4 branches missed.">                    if (timeCell != null &amp;&amp; timeCell.getCellType() == CellType.NUMERIC) {</span>
+                        // 如果数值是小数（例如-80.538），而前面行的数值都是整数格式的时间，很可能是平均值
+<span class="nc" id="L134">                        double cellValue = timeCell.getNumericCellValue();</span>
+<span class="nc" id="L135">                        boolean isTimeFormat = DateUtil.isCellDateFormatted(timeCell);</span>
+                        
+                        // 如果不是时间格式，检查是否是负数（如RSRP平均值）
+<span class="nc bnc" id="L138" title="All 4 branches missed.">                        if (!isTimeFormat &amp;&amp; cellValue &lt; 0) {</span>
+<span class="nc" id="L139">                            log.info(&quot;最后一行首列是负数({}),可能是RSRP平均值行&quot;, cellValue);</span>
+<span class="nc" id="L140">                            averageRowIndex = lastRowNum;</span>
+<span class="nc" id="L141">                            foundSummaryRow = true;</span>
+                        }
+                        
+                        // 检查前几行是否都是时间格式
+<span class="nc bnc" id="L145" title="All 2 branches missed.">                        if (!foundSummaryRow) {</span>
+<span class="nc" id="L146">                            boolean previousAreTime = true;</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">                            for (int i = Math.max(1, lastRowNum - 5); i &lt; lastRowNum; i++) {</span>
+<span class="nc" id="L148">                                Row prevRow = sheet.getRow(i);</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">                                if (prevRow != null) {</span>
+<span class="nc" id="L150">                                    Cell prevTimeCell = prevRow.getCell(0);</span>
+<span class="nc bnc" id="L151" title="All 4 branches missed.">                                    if (prevTimeCell == null || !DateUtil.isCellDateFormatted(prevTimeCell)) {</span>
+<span class="nc" id="L152">                                        previousAreTime = false;</span>
+<span class="nc" id="L153">                                        break;</span>
+                                    }
+                                }
+                            }
+                            
+<span class="nc bnc" id="L158" title="All 4 branches missed.">                            if (previousAreTime &amp;&amp; !isTimeFormat) {</span>
+<span class="nc" id="L159">                                log.info(&quot;最后一行首列格式与前几行不同,可能是平均值行&quot;);</span>
+<span class="nc" id="L160">                                averageRowIndex = lastRowNum;</span>
+<span class="nc" id="L161">                                foundSummaryRow = true;</span>
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 实际行检查计数器，包括所有尝试处理的行
+<span class="fc" id="L169">            int actualRowCount = 0;</span>
+            
+<span class="fc bfc" id="L171" title="All 2 branches covered.">            for (int i = 1; i &lt;= lastRowNum; i++) {</span>
+                // 跳过平均值行
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">                if (i == averageRowIndex) {</span>
+<span class="nc" id="L174">                    log.info(&quot;跳过平均值/汇总行: {}&quot;, i + 1);</span>
+<span class="nc" id="L175">                    continue;</span>
+                }
+                
+<span class="fc" id="L178">                Row row = sheet.getRow(i);</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">                if (row == null) {</span>
+<span class="nc" id="L180">                    log.debug(&quot;跳过空行: {}&quot;, i + 1);</span>
+<span class="nc" id="L181">                    continue;</span>
+                }
+
+                // 改进空行检测逻辑：检查关键列是否都为有效值
+<span class="fc" id="L185">                boolean isValidRow = true;</span>
+                // 检查时间列、RSRP列和SINR列是否为有效数据
+<span class="fc" id="L187">                Cell timeCell = row.getCell(0);</span>
+<span class="fc" id="L188">                Cell rsrpCell = row.getCell(1);</span>
+<span class="fc" id="L189">                Cell sinrCell = row.getCell(2);</span>
+<span class="fc" id="L190">                Cell macThrCell = row.getCell(3);</span>
+                
+                // 时间列必须是有效的日期时间格式
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">                if (timeCell == null || </span>
+<span class="pc bpc" id="L194" title="3 of 4 branches missed.">                    (timeCell.getCellType() != CellType.NUMERIC &amp;&amp; timeCell.getCellType() != CellType.STRING) ||</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">                    getCellValueAsDateTime(timeCell) == null) {</span>
+<span class="nc" id="L196">                    log.debug(&quot;第{}行时间列无效&quot;, i + 1);</span>
+<span class="nc" id="L197">                    isValidRow = false;</span>
+                }
+                
+                // RSRP和SINR必须是有效的数值
+<span class="pc bpc" id="L201" title="3 of 6 branches missed.">                if (rsrpCell == null || sinrCell == null || macThrCell == null ||</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">                    getCellValueAsDouble(rsrpCell) == null || </span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">                    getCellValueAsDouble(sinrCell) == null ||</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">                    getCellValueAsDouble(macThrCell) == null) {</span>
+<span class="nc" id="L205">                    log.debug(&quot;第{}行RSRP/SINR/吞吐量列无效&quot;, i + 1);</span>
+<span class="nc" id="L206">                    isValidRow = false;</span>
+                }
+                
+                // 检查吞吐量是否为正值
+<span class="fc" id="L210">                Double macThr = getCellValueAsDouble(macThrCell);</span>
+<span class="pc bpc" id="L211" title="2 of 4 branches missed.">                if (macThr != null &amp;&amp; macThr &lt;= 0) {</span>
+<span class="nc" id="L212">                    log.debug(&quot;第{}行吞吐量不是正值: {}&quot;, i + 1, macThr);</span>
+<span class="nc" id="L213">                    isValidRow = false;</span>
+                }
+
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">                if (!isValidRow) {</span>
+<span class="nc" id="L217">                    log.info(&quot;跳过无效数据行: {}&quot;, i + 1);</span>
+<span class="nc" id="L218">                    continue;</span>
+                }
+
+<span class="fc" id="L221">                actualRowCount++; // 增加实际处理的行计数</span>
+<span class="fc" id="L222">                validRowCount++; // 增加有效行计数</span>
+
+                try {
+<span class="fc" id="L225">                    TestData data = processRow(row, i + 1, errorMessages);</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">                    if (data != null) {</span>
+<span class="fc" id="L227">                        dataList.add(data);</span>
+                    }
+<span class="nc" id="L229">                } catch (Exception e) {</span>
+<span class="nc" id="L230">                    log.error(&quot;处理第{}行时发生错误: {}&quot;, i + 1, e.getMessage());</span>
+<span class="nc" id="L231">                    errorMessages.add(String.format(&quot;第%d行：数据处理错误 - %s&quot;, i + 1, e.getMessage()));</span>
+<span class="fc" id="L232">                }</span>
+            }
+
+<span class="fc" id="L235">            log.info(&quot;Excel文件共有{}行有效数据，成功处理{}行，最终导入{}行&quot;, </span>
+<span class="fc" id="L236">                    validRowCount, actualRowCount, dataList.size());</span>
+
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">            if (dataList.isEmpty()) {</span>
+<span class="nc" id="L239">                return ApiResponse.error(400, &quot;没有有效的数据可以导入。\n&quot; + String.join(&quot;\n&quot;, errorMessages));</span>
+            }
+
+            // 在保存新数据前先清除所有旧数据
+<span class="fc" id="L243">            log.info(&quot;清除所有旧测试数据，准备导入新数据&quot;);</span>
+<span class="fc" id="L244">            testDataRepository.deleteAll();</span>
+            
+            // 重置自增ID值
+            try {
+<span class="fc" id="L248">                log.info(&quot;尝试重置自增ID值&quot;);</span>
+<span class="fc" id="L249">                testDataRepository.resetAutoIncrement();</span>
+<span class="nc" id="L250">            } catch (Exception e) {</span>
+<span class="nc" id="L251">                log.warn(&quot;重置自增ID失败: {}&quot;, e.getMessage());</span>
+<span class="fc" id="L252">            }</span>
+
+            // 保存新数据
+<span class="fc" id="L255">            testDataRepository.saveAll(dataList);</span>
+
+<span class="fc" id="L257">            Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L258">            result.put(&quot;importCount&quot;, dataList.size());</span>
+<span class="fc" id="L259">            result.put(&quot;totalRows&quot;, lastRowNum);</span>
+<span class="fc" id="L260">            result.put(&quot;skippedRows&quot;, lastRowNum - dataList.size());</span>
+<span class="fc" id="L261">            result.put(&quot;fileName&quot;, fileName);</span>
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">            if (!errorMessages.isEmpty()) {</span>
+<span class="nc" id="L263">                result.put(&quot;warnings&quot;, errorMessages);</span>
+            }
+
+<span class="fc" id="L266">            log.info(&quot;成功导入{}条数据，文件名：{}&quot;, dataList.size(), fileName);</span>
+<span class="fc" id="L267">            return ApiResponse.success(result);</span>
+
+<span class="pc bpc" id="L269" title="3 of 4 branches missed.">        } catch (Exception e) {</span>
+<span class="fc" id="L270">            log.error(&quot;文件处理失败&quot;, e);</span>
+<span class="fc" id="L271">            String errorMsg = &quot;文件处理失败: &quot; + e.getMessage();</span>
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">            if (!errorMessages.isEmpty()) {</span>
+<span class="nc" id="L273">                errorMsg += &quot;\n详细错误：\n&quot; + String.join(&quot;\n&quot;, errorMessages);</span>
+            }
+<span class="fc" id="L275">            return ApiResponse.error(errorMsg);</span>
+        }
+    }
+
+    private TestData processRow(Row row, int rowNum, List&lt;String&gt; errorMessages) {
+<span class="fc" id="L280">        TestData data = new TestData();</span>
+
+        try {
+            // 获取并验证测试时间，确保精确到毫秒
+<span class="fc" id="L284">            LocalDateTime testTime = getCellValueAsDateTime(row.getCell(0));</span>
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">            if (testTime == null) {</span>
+<span class="nc" id="L286">                errorMessages.add(String.format(&quot;第%d行：测试时间不能为空&quot;, rowNum));</span>
+<span class="nc" id="L287">                return null;</span>
+            }
+<span class="fc" id="L289">            data.setTestTime(testTime);</span>
+
+            // 获取并验证RSRP，5G范围：-140dBm到-44dBm
+<span class="fc" id="L292">            Double rsrp = getCellValueAsDouble(row.getCell(1));</span>
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">            if (rsrp == null) {</span>
+<span class="nc" id="L294">                errorMessages.add(String.format(&quot;第%d行：RSRP值不能为空&quot;, rowNum));</span>
+<span class="nc" id="L295">                return null;</span>
+            }
+            // 验证但允许超出正常范围的值
+<span class="pc bpc" id="L298" title="2 of 4 branches missed.">            if (rsrp &lt; -140 || rsrp &gt; -44) {</span>
+<span class="nc" id="L299">                log.warn(&quot;第{}行：RSRP值{}超出正常范围(-140到-44dBm)&quot;, rowNum, rsrp);</span>
+            }
+<span class="fc" id="L301">            data.setRsrp(rsrp);</span>
+
+            // 获取并验证SINR，5G范围：-20dB到40dB
+<span class="fc" id="L304">            Double sinr = getCellValueAsDouble(row.getCell(2));</span>
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">            if (sinr == null) {</span>
+<span class="nc" id="L306">                errorMessages.add(String.format(&quot;第%d行：SINR值不能为空&quot;, rowNum));</span>
+<span class="nc" id="L307">                return null;</span>
+            }
+            // 验证但允许超出正常范围的值
+<span class="pc bpc" id="L310" title="2 of 4 branches missed.">            if (sinr &lt; -20 || sinr &gt; 40) {</span>
+<span class="nc" id="L311">                log.warn(&quot;第{}行：SINR值{}超出正常范围(-20到40dB)&quot;, rowNum, sinr);</span>
+            }
+<span class="fc" id="L313">            data.setSinr(sinr);</span>
+
+            // 获取并验证MAC吞吐量，不设上限
+<span class="fc" id="L316">            Double macThroughput = getCellValueAsDouble(row.getCell(3));</span>
+<span class="pc bpc" id="L317" title="2 of 4 branches missed.">            if (macThroughput == null || macThroughput &lt; 0) {</span>
+<span class="nc" id="L318">                errorMessages.add(String.format(&quot;第%d行：MAC吞吐量无效（应大于0）&quot;, rowNum));</span>
+<span class="nc" id="L319">                return null;</span>
+            }
+<span class="fc" id="L321">            data.setMacThroughput(macThroughput);</span>
+
+            // 获取并验证Rank，范围：1-8
+            Integer rank;
+            try {
+<span class="fc" id="L326">                rank = getCellValueAsInteger(row.getCell(4));</span>
+<span class="nc" id="L327">            } catch (Exception e) {</span>
+                // 如果直接获取整数失败，尝试先获取double然后转换
+                try {
+<span class="nc" id="L330">                    Double doubleRank = getCellValueAsDouble(row.getCell(4));</span>
+<span class="nc bnc" id="L331" title="All 2 branches missed.">                    if (doubleRank != null) {</span>
+<span class="nc" id="L332">                        rank = doubleRank.intValue();</span>
+                    } else {
+<span class="nc" id="L334">                        rank = null;</span>
+                    }
+<span class="nc" id="L336">                } catch (Exception ex) {</span>
+<span class="nc" id="L337">                    log.error(&quot;第{}行：无法解析Rank值&quot;, rowNum);</span>
+<span class="nc" id="L338">                    rank = null;</span>
+<span class="nc" id="L339">                }</span>
+<span class="fc" id="L340">            }</span>
+            
+<span class="pc bpc" id="L342" title="3 of 6 branches missed.">            if (rank == null || rank &lt; 1 || rank &gt; 8) {</span>
+<span class="nc" id="L343">                errorMessages.add(String.format(&quot;第%d行：Rank值无效（应在1到8之间）&quot;, rowNum));</span>
+<span class="nc" id="L344">                return null;</span>
+            }
+<span class="fc" id="L346">            data.setRank(rank);</span>
+
+            // 获取并验证MCS，范围：0-28，使用更宽松的验证方式
+            Integer mcsInt;
+            Double mcs;
+            try {
+<span class="fc" id="L352">                Cell mcsCell = row.getCell(5);</span>
+<span class="pc bpc" id="L353" title="1 of 2 branches missed.">                if (mcsCell == null) {</span>
+<span class="nc" id="L354">                    mcsInt = null;</span>
+<span class="nc" id="L355">                    mcs = null;</span>
+<span class="pc bpc" id="L356" title="1 of 2 branches missed.">                } else if (mcsCell.getCellType() == CellType.NUMERIC) {</span>
+                    // 直接获取数值并转为整数
+<span class="fc" id="L358">                    double numValue = mcsCell.getNumericCellValue();</span>
+<span class="fc" id="L359">                    mcsInt = (int) Math.round(numValue);</span>
+<span class="fc" id="L360">                    mcs = numValue;</span>
+<span class="pc bnc" id="L361" title="All 2 branches missed.">                } else if (mcsCell.getCellType() == CellType.STRING) {</span>
+                    // 尝试将字符串解析为数字
+                    try {
+<span class="nc" id="L364">                        double numValue = Double.parseDouble(mcsCell.getStringCellValue().trim());</span>
+<span class="nc" id="L365">                        mcsInt = (int) Math.round(numValue);</span>
+<span class="nc" id="L366">                        mcs = numValue;</span>
+<span class="nc" id="L367">                    } catch (NumberFormatException e) {</span>
+<span class="nc" id="L368">                        mcsInt = null;</span>
+<span class="nc" id="L369">                        mcs = null;</span>
+<span class="nc" id="L370">                    }</span>
+                } else {
+<span class="nc" id="L372">                    mcsInt = null;</span>
+<span class="nc" id="L373">                    mcs = null;</span>
+                }
+<span class="nc" id="L375">            } catch (Exception e) {</span>
+<span class="nc" id="L376">                log.error(&quot;第{}行：MCS解析错误 - {}&quot;, rowNum, e.getMessage());</span>
+<span class="nc" id="L377">                mcsInt = null;</span>
+<span class="nc" id="L378">                mcs = null;</span>
+<span class="fc" id="L379">            }</span>
+            
+<span class="pc bpc" id="L381" title="3 of 6 branches missed.">            if (mcsInt == null || mcsInt &lt; 0 || mcsInt &gt; 28) {</span>
+<span class="nc" id="L382">                errorMessages.add(String.format(&quot;第%d行：MCS值无效（应在0到28之间）&quot;, rowNum));</span>
+<span class="nc" id="L383">                return null;</span>
+            }
+<span class="fc" id="L385">            data.setMcs(mcs);</span>
+
+            // 获取并验证PRB数，5G最大可达275，使用更宽松的验证方式
+            Integer prbNum;
+            try {
+<span class="fc" id="L390">                Cell prbCell = row.getCell(6);</span>
+<span class="pc bpc" id="L391" title="1 of 2 branches missed.">                if (prbCell == null) {</span>
+<span class="nc" id="L392">                    prbNum = null;</span>
+<span class="pc bpc" id="L393" title="1 of 2 branches missed.">                } else if (prbCell.getCellType() == CellType.NUMERIC) {</span>
+                    // 直接获取数值并转为整数
+<span class="fc" id="L395">                    double numValue = prbCell.getNumericCellValue();</span>
+<span class="fc" id="L396">                    prbNum = (int) Math.round(numValue);</span>
+<span class="pc bnc" id="L397" title="All 2 branches missed.">                } else if (prbCell.getCellType() == CellType.STRING) {</span>
+                    // 尝试将字符串解析为数字
+                    try {
+<span class="nc" id="L400">                        double numValue = Double.parseDouble(prbCell.getStringCellValue().trim());</span>
+<span class="nc" id="L401">                        prbNum = (int) Math.round(numValue);</span>
+<span class="nc" id="L402">                    } catch (NumberFormatException e) {</span>
+<span class="nc" id="L403">                        prbNum = null;</span>
+<span class="nc" id="L404">                    }</span>
+                } else {
+<span class="nc" id="L406">                    prbNum = null;</span>
+                }
+<span class="nc" id="L408">            } catch (Exception e) {</span>
+<span class="nc" id="L409">                log.error(&quot;第{}行：PRB数解析错误 - {}&quot;, rowNum, e.getMessage());</span>
+<span class="nc" id="L410">                prbNum = null;</span>
+<span class="fc" id="L411">            }</span>
+            
+<span class="pc bpc" id="L413" title="2 of 4 branches missed.">            if (prbNum == null || prbNum &lt; 0) {</span>
+<span class="nc" id="L414">                errorMessages.add(String.format(&quot;第%d行：PRB数无效（应大于0）&quot;, rowNum));</span>
+<span class="nc" id="L415">                return null;</span>
+            }
+            // 验证但允许大于正常范围的值
+<span class="pc bpc" id="L418" title="1 of 2 branches missed.">            if (prbNum &gt; 275) {</span>
+<span class="nc" id="L419">                log.warn(&quot;第{}行：PRB数{}超出正常最大值275&quot;, rowNum, prbNum);</span>
+            }
+<span class="fc" id="L421">            data.setPrbNum(prbNum);</span>
+
+            // 获取并验证BLER值 - 根据提供的Excel截图，BLER值在K列，通常为索引10
+            // 但有时Excel的列索引可能与预期不同，因此添加更多日志和容错逻辑
+            try {
+                // 首先尝试从K列(索引10)读取
+<span class="fc" id="L427">                Double bler = getCellValueAsDouble(row.getCell(10));</span>
+                
+                // 如果值无效，尝试从其他可能的列读取
+<span class="pc bpc" id="L430" title="3 of 4 branches missed.">                if (bler == null || bler &lt; 0) {</span>
+                    // 尝试从图中第二张图片看起来像是第8列读取
+<span class="fc" id="L432">                    bler = getCellValueAsDouble(row.getCell(8));</span>
+<span class="fc" id="L433">                    log.info(&quot;第{}行：从备选列(索引8)读取BLER值: {}&quot;, rowNum, bler);</span>
+                }
+                
+<span class="pc bpc" id="L436" title="3 of 4 branches missed.">                if (bler == null || bler &lt; 0) {</span>
+                    // 再尝试一些其他可能的列
+<span class="fc bfc" id="L438" title="All 2 branches covered.">                    for (int col = 7; col &lt;= 12; col++) {</span>
+<span class="fc bfc" id="L439" title="All 4 branches covered.">                        if (col == 8 || col == 10) continue; // 已经尝试过的列</span>
+<span class="fc" id="L440">                        Double tryBler = getCellValueAsDouble(row.getCell(col));</span>
+<span class="pc bpc" id="L441" title="3 of 4 branches missed.">                        if (tryBler != null &amp;&amp; tryBler &gt;= 0) {</span>
+<span class="nc" id="L442">                            bler = tryBler;</span>
+<span class="nc" id="L443">                            log.info(&quot;第{}行：从列索引{}读取到有效BLER值: {}&quot;, rowNum, col, bler);</span>
+<span class="nc" id="L444">                            break;</span>
+                        }
+                    }
+                }
+                
+                // 如果仍然找不到，记录错误但使用0作为默认值
+<span class="pc bpc" id="L450" title="3 of 4 branches missed.">                if (bler == null || bler &lt; 0) {</span>
+<span class="fc" id="L451">                    log.warn(&quot;第{}行：无法找到有效的BLER值，使用默认值0&quot;, rowNum);</span>
+<span class="fc" id="L452">                    bler = 0.0;</span>
+                }
+                
+<span class="fc" id="L455">                data.setBler(bler);</span>
+<span class="fc" id="L456">                log.debug(&quot;第{}行：最终使用的BLER值: {}&quot;, rowNum, bler);</span>
+                
+<span class="nc" id="L458">            } catch (Exception e) {</span>
+<span class="nc" id="L459">                log.error(&quot;读取BLER值发生错误&quot;, e);</span>
+<span class="nc" id="L460">                data.setBler(0.0); // 使用默认值</span>
+<span class="fc" id="L461">            }</span>
+
+            // 设置创建和更新时间
+<span class="fc" id="L464">            LocalDateTime now = LocalDateTime.now();</span>
+<span class="fc" id="L465">            data.setCreateTime(now);</span>
+<span class="fc" id="L466">            data.setUpdateTime(now);</span>
+
+<span class="fc" id="L468">            return data;</span>
+<span class="nc" id="L469">        } catch (Exception e) {</span>
+<span class="nc" id="L470">            log.error(&quot;处理第{}行数据时发生错误&quot;, rowNum, e);</span>
+<span class="nc" id="L471">            errorMessages.add(String.format(&quot;第%d行：数据处理错误 - %s&quot;, rowNum, e.getMessage()));</span>
+<span class="nc" id="L472">            return null;</span>
+        }
+    }
+
+    private LocalDateTime getCellValueAsDateTime(Cell cell) {
+<span class="pc bpc" id="L477" title="1 of 2 branches missed.">        if (cell == null) {</span>
+<span class="nc" id="L478">            log.debug(&quot;日期时间单元格为空&quot;);</span>
+<span class="nc" id="L479">            return null;</span>
+        }
+
+        try {
+<span class="pc bpc" id="L483" title="2 of 3 branches missed.">            switch (cell.getCellType()) {</span>
+                case NUMERIC:
+<span class="pc bpc" id="L485" title="1 of 2 branches missed.">                    if (DateUtil.isCellDateFormatted(cell)) {</span>
+                        try {
+                            // 直接获取LocalDateTime以保留毫秒精度
+<span class="nc" id="L488">                            return cell.getLocalDateTimeCellValue();</span>
+<span class="nc" id="L489">                        } catch (Exception e) {</span>
+<span class="nc" id="L490">                            log.debug(&quot;无法直接获取LocalDateTime，尝试通过Date转换&quot;, e);</span>
+                            try {
+<span class="nc" id="L492">                                return cell.getDateCellValue().toInstant()</span>
+<span class="nc" id="L493">                                        .atZone(java.time.ZoneId.systemDefault())</span>
+<span class="nc" id="L494">                                        .toLocalDateTime();</span>
+<span class="nc" id="L495">                            } catch (Exception e2) {</span>
+<span class="nc" id="L496">                                log.debug(&quot;通过Date转换失败，尝试其他方式&quot;, e2);</span>
+                            }
+                        }
+                    }
+
+                    // 尝试将数值作为Excel日期序列号处理
+                    try {
+<span class="fc" id="L503">                        double numericValue = cell.getNumericCellValue();</span>
+<span class="pc bpc" id="L504" title="1 of 2 branches missed.">                        if (numericValue &gt; 1) {  // Excel中的日期从1900年开始</span>
+<span class="fc" id="L505">                            return DateUtil.getJavaDate(numericValue)</span>
+<span class="fc" id="L506">                                .toInstant()</span>
+<span class="fc" id="L507">                                    .atZone(java.time.ZoneId.systemDefault())</span>
+<span class="fc" id="L508">                                .toLocalDateTime();</span>
+                        }
+<span class="nc" id="L510">                    } catch (Exception e) {</span>
+<span class="nc" id="L511">                        log.debug(&quot;数值转换为日期失败&quot;, e);</span>
+<span class="nc" id="L512">                    }</span>
+<span class="nc" id="L513">                    break;</span>
+                case STRING:
+<span class="nc" id="L515">                    String dateStr = cell.getStringCellValue().trim();</span>
+<span class="nc bnc" id="L516" title="All 2 branches missed.">                    if (dateStr.isEmpty()) {</span>
+<span class="nc" id="L517">                        return null;</span>
+                    }
+
+                    // 尝试使用所有支持的日期格式
+<span class="nc bnc" id="L521" title="All 2 branches missed.">                    for (DateTimeFormatter formatter : DATE_FORMATTERS) {</span>
+                        try {
+                            // 对于没有年份的时间格式，需要添加当前年月日
+<span class="nc bnc" id="L524" title="All 2 branches missed.">                            if (dateStr.matches(&quot;\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,3})?&quot;)) {</span>
+<span class="nc" id="L525">                                LocalDateTime now = LocalDateTime.now();</span>
+<span class="nc" id="L526">                                dateStr = String.format(&quot;%04d-%02d-%02d %s&quot;,</span>
+<span class="nc" id="L527">                                    now.getYear(), now.getMonthValue(), now.getDayOfMonth(), dateStr);</span>
+<span class="nc" id="L528">                                return LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss.SSS&quot;));</span>
+                            }
+
+<span class="nc" id="L531">                            return LocalDateTime.parse(dateStr, formatter);</span>
+<span class="nc" id="L532">                        } catch (DateTimeParseException e) {</span>
+                            // 继续尝试下一个格式
+                        }
+                    }
+
+                    // 所有标准格式都无法解析，尝试自定义解析
+<span class="nc" id="L538">                    log.warn(&quot;无法使用标准格式解析日期时间: {}&quot;, dateStr);</span>
+                    try {
+                        // 尝试从字符串中提取时间部分并解析
+<span class="nc bnc" id="L541" title="All 2 branches missed.">                        if (dateStr.contains(&quot;:&quot;)) {</span>
+<span class="nc" id="L542">                            String[] parts = dateStr.split(&quot;[ T]&quot;);</span>
+<span class="nc bnc" id="L543" title="All 2 branches missed.">                            for (String part : parts) {</span>
+<span class="nc bnc" id="L544" title="All 2 branches missed.">                                if (part.contains(&quot;:&quot;)) {</span>
+                                    // 找到可能是时间的部分
+<span class="nc" id="L546">                                    LocalDateTime now = LocalDateTime.now();</span>
+<span class="nc" id="L547">                                    String timeStr = String.format(&quot;%04d-%02d-%02d %s&quot;,</span>
+<span class="nc" id="L548">                                        now.getYear(), now.getMonthValue(), now.getDayOfMonth(), part);</span>
+<span class="nc" id="L549">                                    return LocalDateTime.parse(timeStr, DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;));</span>
+                                }
+                            }
+                        }
+<span class="nc" id="L553">                    } catch (Exception e) {</span>
+<span class="nc" id="L554">                        log.debug(&quot;自定义解析日期时间失败&quot;, e);</span>
+<span class="nc" id="L555">                    }</span>
+
+                    // 无法解析，记录错误并返回null
+<span class="nc" id="L558">                    log.error(&quot;无法解析日期时间: {}&quot;, dateStr);</span>
+                    break;
+            }
+<span class="nc" id="L561">        } catch (Exception e) {</span>
+<span class="nc" id="L562">            log.error(&quot;获取日期时间值时发生错误&quot;, e);</span>
+<span class="nc" id="L563">        }</span>
+
+<span class="nc" id="L565">        return null;</span>
+    }
+
+    private Double getCellValueAsDouble(Cell cell) {
+<span class="fc bfc" id="L569" title="All 2 branches covered.">        if (cell == null) {</span>
+<span class="fc" id="L570">            log.debug(&quot;数值单元格为空&quot;);</span>
+<span class="fc" id="L571">            return null;</span>
+        }
+
+        try {
+<span class="pc bpc" id="L575" title="6 of 7 branches missed.">            switch (cell.getCellType()) {</span>
+                case NUMERIC:
+<span class="fc" id="L577">                    return cell.getNumericCellValue();</span>
+                case STRING:
+<span class="nc" id="L579">                    String value = cell.getStringCellValue().trim();</span>
+<span class="nc bnc" id="L580" title="All 2 branches missed.">                    if (value.isEmpty()) {</span>
+<span class="nc" id="L581">                        return null;</span>
+                    }
+                    try {
+<span class="nc" id="L584">                        return Double.parseDouble(value);</span>
+<span class="nc" id="L585">                    } catch (NumberFormatException e) {</span>
+<span class="nc" id="L586">                        log.error(&quot;无法将字符串值转换为数值: {}&quot;, value);</span>
+<span class="nc" id="L587">                        throw new IllegalArgumentException(&quot;单元格包含非数值文本: &quot; + value);</span>
+                    }
+                case BLANK:
+<span class="nc" id="L590">                    return null;</span>
+                case FORMULA:
+                    try {
+<span class="nc" id="L593">                        return cell.getNumericCellValue();</span>
+<span class="nc" id="L594">                    } catch (Exception e) {</span>
+<span class="nc" id="L595">                        log.error(&quot;无法获取公式单元格的数值结果: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L596">                        throw new IllegalArgumentException(&quot;公式单元格计算错误&quot;);</span>
+                    }
+                case BOOLEAN:
+<span class="nc" id="L599">                    throw new IllegalArgumentException(&quot;单元格包含布尔值，需要数值&quot;);</span>
+                case ERROR:
+<span class="nc" id="L601">                    throw new IllegalArgumentException(&quot;单元格包含错误值&quot;);</span>
+                default:
+<span class="nc" id="L603">                    throw new IllegalArgumentException(&quot;单元格类型不支持转换为数值&quot;);</span>
+            }
+<span class="nc" id="L605">        } catch (Exception e) {</span>
+<span class="nc" id="L606">            log.error(&quot;解析数值时发生错误: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L607">            throw new IllegalArgumentException(&quot;数值格式错误: &quot; + e.getMessage());</span>
+        }
+    }
+
+    private Integer getCellValueAsInteger(Cell cell) {
+<span class="pc bpc" id="L612" title="1 of 2 branches missed.">        if (cell == null) {</span>
+<span class="nc" id="L613">            log.debug(&quot;整数单元格为空&quot;);</span>
+<span class="nc" id="L614">            return null;</span>
+        }
+
+        try {
+<span class="pc bpc" id="L618" title="6 of 7 branches missed.">            switch (cell.getCellType()) {</span>
+                case NUMERIC:
+<span class="fc" id="L620">                    double numValue = cell.getNumericCellValue();</span>
+                    // 检查数值是否为整数
+<span class="pc bpc" id="L622" title="1 of 2 branches missed.">                    if (Math.floor(numValue) != numValue) {</span>
+<span class="nc" id="L623">                        log.error(&quot;单元格包含小数而非整数: {}&quot;, numValue);</span>
+<span class="nc" id="L624">                        throw new IllegalArgumentException(&quot;需要整数值，但单元格包含小数: &quot; + numValue);</span>
+                    }
+<span class="fc" id="L626">                    return (int) numValue;</span>
+                case STRING:
+<span class="nc" id="L628">                    String value = cell.getStringCellValue().trim();</span>
+<span class="nc bnc" id="L629" title="All 2 branches missed.">                    if (value.isEmpty()) {</span>
+<span class="nc" id="L630">                        return null;</span>
+                    }
+                    try {
+<span class="nc" id="L633">                        return Integer.parseInt(value);</span>
+<span class="nc" id="L634">                    } catch (NumberFormatException e) {</span>
+<span class="nc" id="L635">                        log.error(&quot;无法将字符串值转换为整数: {}&quot;, value);</span>
+<span class="nc" id="L636">                        throw new IllegalArgumentException(&quot;单元格包含非整数文本: &quot; + value);</span>
+                    }
+                case BLANK:
+<span class="nc" id="L639">                    return null;</span>
+                case FORMULA:
+                    try {
+<span class="nc" id="L642">                        double formulaValue = cell.getNumericCellValue();</span>
+<span class="nc bnc" id="L643" title="All 2 branches missed.">                        if (Math.floor(formulaValue) != formulaValue) {</span>
+<span class="nc" id="L644">                            throw new IllegalArgumentException(&quot;公式结果不是整数: &quot; + formulaValue);</span>
+                        }
+<span class="nc" id="L646">                        return (int) formulaValue;</span>
+<span class="nc" id="L647">                    } catch (Exception e) {</span>
+<span class="nc" id="L648">                        log.error(&quot;无法获取公式单元格的整数结果: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L649">                        throw new IllegalArgumentException(&quot;公式单元格计算错误&quot;);</span>
+                    }
+                case BOOLEAN:
+<span class="nc" id="L652">                    throw new IllegalArgumentException(&quot;单元格包含布尔值，需要整数&quot;);</span>
+                case ERROR:
+<span class="nc" id="L654">                    throw new IllegalArgumentException(&quot;单元格包含错误值&quot;);</span>
+                default:
+<span class="nc" id="L656">                    throw new IllegalArgumentException(&quot;单元格类型不支持转换为整数&quot;);</span>
+            }
+<span class="nc" id="L658">        } catch (Exception e) {</span>
+<span class="nc" id="L659">            log.error(&quot;解析整数时发生错误: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L660">            throw new IllegalArgumentException(&quot;整数格式错误: &quot; + e.getMessage());</span>
+        }
+    }
+
+    /**
+     * 将java.util.Date转换为LocalDateTime
+     */
+    private LocalDateTime convertDateToLocalDateTime(java.util.Date date) {
+<span class="nc bnc" id="L668" title="All 2 branches missed.">        if (date == null) {</span>
+<span class="nc" id="L669">            return null;</span>
+        }
+<span class="nc" id="L671">        return date.toInstant()</span>
+<span class="nc" id="L672">            .atZone(java.time.ZoneId.systemDefault())</span>
+<span class="nc" id="L673">            .toLocalDateTime();</span>
+    }
+
+    /**
+     * 尝试将字符串解析为日期时间
+     */
+    private LocalDateTime parseStringAsDateTime(String value) {
+<span class="nc bnc" id="L680" title="All 4 branches missed.">        if (value == null || value.trim().isEmpty()) {</span>
+<span class="nc" id="L681">            return null;</span>
+        }
+
+<span class="nc" id="L684">        value = value.trim();</span>
+
+        // 尝试使用不同的格式解析
+<span class="nc bnc" id="L687" title="All 2 branches missed.">        for (DateTimeFormatter formatter : DATE_FORMATTERS) {</span>
+            try {
+<span class="nc bnc" id="L689" title="All 2 branches missed.">                if (value.length() &lt;= formatter.toString().length()) {</span>
+<span class="nc bnc" id="L690" title="All 4 branches missed.">                    if (formatter.toString().contains(&quot;HH:mm:ss&quot;) &amp;&amp; !value.contains(&quot;:&quot;)) {</span>
+<span class="nc" id="L691">                        continue;</span>
+                    }
+<span class="nc" id="L693">                    LocalDateTime dateTime = LocalDateTime.parse(value, formatter);</span>
+<span class="nc bnc" id="L694" title="All 2 branches missed.">                    if (dateTime != null) {</span>
+<span class="nc" id="L695">                        return dateTime;</span>
+                    }
+                }
+<span class="nc" id="L698">            } catch (DateTimeParseException e) {</span>
+                // 继续尝试其他格式
+<span class="nc" id="L700">            }</span>
+        }
+
+<span class="nc" id="L703">        return null;</span>
+    }
+
+    /**
+     * 验证Excel文件结构，检查必要的列是否存在以及数据类型是否正确
+     * @param sheet Excel表格
+     * @return ApiResponse 验证结果
+     */
+    private ApiResponse&lt;?&gt; validateExcelStructure(Sheet sheet) {
+<span class="pc bpc" id="L712" title="1 of 4 branches missed.">        if (sheet == null || sheet.getPhysicalNumberOfRows() &lt; 2) {</span>
+<span class="fc" id="L713">            return ApiResponse.error(400, &quot;Excel文件为空或不包含足够的数据行&quot;);</span>
+        }
+
+        // 检查必要的列是否存在
+<span class="fc" id="L717">        List&lt;String&gt; missingColumns = new ArrayList&lt;&gt;();</span>
+        
+        // 尝试检查多行而不只是第一行，提高容错性
+<span class="fc" id="L720">        int lastRowToCheck = Math.min(sheet.getLastRowNum(), 10); // 检查前10行或全部行</span>
+<span class="fc" id="L721">        boolean hasValidRow = false;</span>
+        
+        // 首先只检查列是否存在，不检查数据类型
+<span class="pc bpc" id="L724" title="1 of 2 branches missed.">        for (int rowIndex = 1; rowIndex &lt;= lastRowToCheck; rowIndex++) {</span>
+<span class="fc" id="L725">            Row row = sheet.getRow(rowIndex);</span>
+<span class="pc bpc" id="L726" title="1 of 2 branches missed.">            if (row == null) continue;</span>
+            
+            // 检查每一列是否存在
+<span class="fc" id="L729">            boolean rowHasAllColumns = true;</span>
+<span class="fc bfc" id="L730" title="All 2 branches covered.">            for (int colIndex = 0; colIndex &lt;= 6; colIndex++) {</span>
+<span class="pc bpc" id="L731" title="1 of 2 branches missed.">                if (row.getCell(colIndex) == null) {</span>
+<span class="nc" id="L732">                    rowHasAllColumns = false;</span>
+<span class="nc" id="L733">                    break;</span>
+                }
+            }
+            
+<span class="pc bpc" id="L737" title="1 of 2 branches missed.">            if (rowHasAllColumns) {</span>
+<span class="fc" id="L738">                hasValidRow = true;</span>
+<span class="fc" id="L739">                break;</span>
+            }
+        }
+        
+<span class="pc bpc" id="L743" title="1 of 2 branches missed.">        if (!hasValidRow) {</span>
+            // 如果没有找到包含所有必要列的行，添加缺失列信息
+<span class="nc" id="L745">            missingColumns.add(&quot;文件必须包含至少以下7列：测试时间、RSRP、SINR、MAC吞吐量、Rank、MCS、PRB数&quot;);</span>
+        }
+        
+        // 如果列缺失，直接返回错误
+<span class="pc bpc" id="L749" title="1 of 2 branches missed.">        if (!missingColumns.isEmpty()) {</span>
+<span class="nc" id="L750">            StringBuilder errorMessage = new StringBuilder(&quot;Excel文件格式错误：\n&quot;);</span>
+<span class="nc" id="L751">            errorMessage.append(&quot;缺少必要列: &quot;).append(String.join(&quot;, &quot;, missingColumns));</span>
+<span class="nc" id="L752">            return ApiResponse.error(400, errorMessage.toString());</span>
+        }
+        
+        // 如果有所有必要的列，尝试在多行中验证数据类型
+<span class="fc" id="L756">        List&lt;String&gt; invalidDataTypes = new ArrayList&lt;&gt;();</span>
+        
+        // 设置用于数据类型检查的行数量（不超过总行数）
+<span class="fc" id="L759">        int rowsToValidate = Math.min(sheet.getLastRowNum(), 5);</span>
+<span class="fc" id="L760">        boolean[] columnValidations = new boolean[7]; // 记录每列是否至少有一行数据有效</span>
+        
+        // 检查前几行的数据类型
+<span class="pc bpc" id="L763" title="1 of 2 branches missed.">        for (int rowIndex = 1; rowIndex &lt;= rowsToValidate; rowIndex++) {</span>
+<span class="fc" id="L764">            Row row = sheet.getRow(rowIndex);</span>
+<span class="pc bpc" id="L765" title="1 of 2 branches missed.">            if (row == null) continue;</span>
+            
+            // 检查时间列（索引0）
+<span class="pc bpc" id="L768" title="2 of 4 branches missed.">            if (!columnValidations[0] &amp;&amp; row.getCell(0) != null) {</span>
+                try {
+<span class="fc" id="L770">                    LocalDateTime timeValue = getCellValueAsDateTime(row.getCell(0));</span>
+<span class="pc bpc" id="L771" title="1 of 2 branches missed.">                    if (timeValue != null) {</span>
+<span class="fc" id="L772">                        columnValidations[0] = true;</span>
+                    }
+<span class="nc" id="L774">                } catch (Exception ignored) {</span>
+                    // 忽略单行错误，继续检查其他行
+<span class="fc" id="L776">                }</span>
+            }
+            
+            // 检查RSRP列（索引1）
+<span class="pc bpc" id="L780" title="2 of 4 branches missed.">            if (!columnValidations[1] &amp;&amp; row.getCell(1) != null) {</span>
+                try {
+<span class="fc" id="L782">                    Double rsrpValue = getCellValueAsDouble(row.getCell(1));</span>
+<span class="pc bpc" id="L783" title="1 of 2 branches missed.">                    if (rsrpValue != null) {</span>
+<span class="fc" id="L784">                        columnValidations[1] = true;</span>
+                    }
+<span class="nc" id="L786">                } catch (Exception ignored) {</span>
+                    // 忽略单行错误
+<span class="fc" id="L788">                }</span>
+            }
+            
+            // 检查SINR列（索引2）
+<span class="pc bpc" id="L792" title="2 of 4 branches missed.">            if (!columnValidations[2] &amp;&amp; row.getCell(2) != null) {</span>
+                try {
+<span class="fc" id="L794">                    Double sinrValue = getCellValueAsDouble(row.getCell(2));</span>
+<span class="pc bpc" id="L795" title="1 of 2 branches missed.">                    if (sinrValue != null) {</span>
+<span class="fc" id="L796">                        columnValidations[2] = true;</span>
+                    }
+<span class="nc" id="L798">                } catch (Exception ignored) {</span>
+                    // 忽略单行错误
+<span class="fc" id="L800">                }</span>
+            }
+            
+            // 检查MAC吞吐量列（索引3）
+<span class="pc bpc" id="L804" title="2 of 4 branches missed.">            if (!columnValidations[3] &amp;&amp; row.getCell(3) != null) {</span>
+                try {
+<span class="fc" id="L806">                    Double macValue = getCellValueAsDouble(row.getCell(3));</span>
+<span class="pc bpc" id="L807" title="1 of 2 branches missed.">                    if (macValue != null) {</span>
+<span class="fc" id="L808">                        columnValidations[3] = true;</span>
+                    }
+<span class="nc" id="L810">                } catch (Exception ignored) {</span>
+                    // 忽略单行错误
+<span class="fc" id="L812">                }</span>
+            }
+            
+            // 检查Rank列（索引4）
+<span class="pc bpc" id="L816" title="2 of 4 branches missed.">            if (!columnValidations[4] &amp;&amp; row.getCell(4) != null) {</span>
+                try {
+                    // 对于Rank，尝试先转换为double，容错性更好
+                    try {
+<span class="fc" id="L820">                        Double rankValue = getCellValueAsDouble(row.getCell(4));</span>
+<span class="pc bpc" id="L821" title="3 of 6 branches missed.">                        if (rankValue != null &amp;&amp; rankValue &gt;= 1 &amp;&amp; rankValue &lt;= 8) {</span>
+<span class="fc" id="L822">                            columnValidations[4] = true;</span>
+                        }
+<span class="nc" id="L824">                    } catch (Exception e) {</span>
+                        // 如果不是有效的double，尝试作为integer
+<span class="nc" id="L826">                        Integer rankValue = getCellValueAsInteger(row.getCell(4));</span>
+<span class="nc bnc" id="L827" title="All 6 branches missed.">                        if (rankValue != null &amp;&amp; rankValue &gt;= 1 &amp;&amp; rankValue &lt;= 8) {</span>
+<span class="nc" id="L828">                            columnValidations[4] = true;</span>
+                        }
+<span class="fc" id="L830">                    }</span>
+<span class="nc" id="L831">                } catch (Exception ignored) {</span>
+                    // 忽略单行错误
+<span class="fc" id="L833">                }</span>
+            }
+            
+            // 检查MCS列（索引5）- 特别关注，使用更宽松的验证
+<span class="pc bpc" id="L837" title="2 of 4 branches missed.">            if (!columnValidations[5] &amp;&amp; row.getCell(5) != null) {</span>
+                try {
+<span class="fc" id="L839">                    Cell mcsCell = row.getCell(5);</span>
+<span class="pc bpc" id="L840" title="1 of 2 branches missed.">                    if (mcsCell.getCellType() == CellType.NUMERIC) {</span>
+                        // 直接获取数值，允许小数但会在处理时转为整数
+<span class="fc" id="L842">                        double numValue = mcsCell.getNumericCellValue();</span>
+<span class="pc bpc" id="L843" title="2 of 4 branches missed.">                        if (numValue &gt;= 0 &amp;&amp; numValue &lt;= 28) {</span>
+<span class="fc" id="L844">                            columnValidations[5] = true;</span>
+                        }
+<span class="pc bnc" id="L846" title="All 2 branches missed.">                    } else if (mcsCell.getCellType() == CellType.STRING) {</span>
+                        // 尝试将字符串解析为数字
+                        try {
+<span class="nc" id="L849">                            double numValue = Double.parseDouble(mcsCell.getStringCellValue().trim());</span>
+<span class="nc bnc" id="L850" title="All 4 branches missed.">                            if (numValue &gt;= 0 &amp;&amp; numValue &lt;= 28) {</span>
+<span class="nc" id="L851">                                columnValidations[5] = true;</span>
+                            }
+<span class="nc" id="L853">                        } catch (NumberFormatException ignored) {</span>
+                            // 非数字字符串，继续检查其他行
+<span class="nc" id="L855">                        }</span>
+                    }
+<span class="nc" id="L857">                } catch (Exception ignored) {</span>
+                    // 忽略单行错误
+<span class="fc" id="L859">                }</span>
+            }
+            
+            // 检查PRB数列（索引6）
+<span class="pc bpc" id="L863" title="2 of 4 branches missed.">            if (!columnValidations[6] &amp;&amp; row.getCell(6) != null) {</span>
+                try {
+                    // 对于PRB，也先尝试作为double，然后是integer
+                    try {
+<span class="fc" id="L867">                        Double prbValue = getCellValueAsDouble(row.getCell(6));</span>
+<span class="pc bpc" id="L868" title="2 of 4 branches missed.">                        if (prbValue != null &amp;&amp; prbValue &gt;= 0) {</span>
+<span class="fc" id="L869">                            columnValidations[6] = true;</span>
+                        }
+<span class="nc" id="L871">                    } catch (Exception e) {</span>
+<span class="nc" id="L872">                        Integer prbValue = getCellValueAsInteger(row.getCell(6));</span>
+<span class="nc bnc" id="L873" title="All 4 branches missed.">                        if (prbValue != null &amp;&amp; prbValue &gt;= 0) {</span>
+<span class="nc" id="L874">                            columnValidations[6] = true;</span>
+                        }
+<span class="fc" id="L876">                    }</span>
+<span class="nc" id="L877">                } catch (Exception ignored) {</span>
+                    // 忽略单行错误
+<span class="fc" id="L879">                }</span>
+            }
+            
+            // 如果所有列都通过验证，提前结束
+<span class="pc bpc" id="L883" title="1 of 2 branches missed.">            if (allColumnsValid(columnValidations)) {</span>
+<span class="fc" id="L884">                break;</span>
+            }
+        }
+        
+        // 检查哪些列没有通过验证
+<span class="pc bpc" id="L889" title="1 of 2 branches missed.">        if (!allColumnsValid(columnValidations)) {</span>
+<span class="nc bnc" id="L890" title="All 2 branches missed.">            if (!columnValidations[0]) invalidDataTypes.add(&quot;测试时间(第1列)应为有效的日期时间格式&quot;);</span>
+<span class="nc bnc" id="L891" title="All 2 branches missed.">            if (!columnValidations[1]) invalidDataTypes.add(&quot;RSRP(第2列)应为数值类型&quot;);</span>
+<span class="nc bnc" id="L892" title="All 2 branches missed.">            if (!columnValidations[2]) invalidDataTypes.add(&quot;SINR(第3列)应为数值类型&quot;);</span>
+<span class="nc bnc" id="L893" title="All 2 branches missed.">            if (!columnValidations[3]) invalidDataTypes.add(&quot;MAC吞吐量(第4列)应为数值类型&quot;);</span>
+<span class="nc bnc" id="L894" title="All 2 branches missed.">            if (!columnValidations[4]) invalidDataTypes.add(&quot;Rank(第5列)应为整数类型(1-8)&quot;);</span>
+<span class="nc bnc" id="L895" title="All 2 branches missed.">            if (!columnValidations[5]) invalidDataTypes.add(&quot;MCS(第6列)应为整数类型(0-28)&quot;);</span>
+<span class="nc bnc" id="L896" title="All 2 branches missed.">            if (!columnValidations[6]) invalidDataTypes.add(&quot;PRB数(第7列)应为整数类型&quot;);</span>
+        }
+        
+        // 如果存在无效数据类型，返回错误响应
+<span class="pc bpc" id="L900" title="1 of 2 branches missed.">        if (!invalidDataTypes.isEmpty()) {</span>
+<span class="nc" id="L901">            StringBuilder errorMessage = new StringBuilder(&quot;Excel文件格式错误：\n&quot;);</span>
+<span class="nc" id="L902">            errorMessage.append(&quot;数据类型错误: &quot;).append(String.join(&quot;, &quot;, invalidDataTypes));</span>
+<span class="nc" id="L903">            return ApiResponse.error(400, errorMessage.toString());</span>
+        }
+        
+<span class="fc" id="L906">        return ApiResponse.success(null);</span>
+    }
+    
+    /**
+     * 检查所有列是否都通过验证
+     */
+    private boolean allColumnsValid(boolean[] columnValidations) {
+<span class="fc bfc" id="L913" title="All 2 branches covered.">        for (boolean valid : columnValidations) {</span>
+<span class="pc bpc" id="L914" title="1 of 2 branches missed.">            if (!valid) return false;</span>
+        }
+<span class="fc" id="L916">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

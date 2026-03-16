@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalysisResultAi.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Five-analysis-system</a> &gt; <a href="index.source.html" class="el_package">com._5ganalysisrate.g5rate.model.ai</a> &gt; <span class="el_source">AnalysisResultAi.java</span></div><h1>AnalysisResultAi.java</h1><pre class="source lang-java linenums">package com._5ganalysisrate.g5rate.model.ai;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+<span class="pc bnc" id="L7" title="All 86 branches missed.">@Data</span>
+@Entity
+@Table(name = &quot;analysis_result_ai&quot;)
+public class AnalysisResultAi {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+<span class="nc" id="L14">    private Long id;</span>
+
+    @Column(name = &quot;task_id&quot;, nullable = false)
+<span class="nc" id="L17">    private Long taskId;</span>
+
+    @Column(name = &quot;model_name&quot;)
+<span class="nc" id="L20">    private String modelName;</span>
+
+    @Column(name = &quot;prompt_version&quot;)
+<span class="nc" id="L23">    private String promptVersion;</span>
+
+    @Column(name = &quot;input_digest&quot;)
+<span class="nc" id="L26">    private String inputDigest;</span>
+
+    @Column(name = &quot;output_json&quot;, columnDefinition = &quot;MEDIUMTEXT&quot;)
+<span class="nc" id="L29">    private String outputJson;</span>
+
+    @Column(name = &quot;confidence_score&quot;)
+<span class="nc" id="L32">    private Double confidenceScore;</span>
+
+    @Column(name = &quot;token_usage&quot;)
+<span class="nc" id="L35">    private Integer tokenUsage;</span>
+
+    @Column(name = &quot;latency_ms&quot;)
+<span class="nc" id="L38">    private Long latencyMs;</span>
+
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+<span class="nc" id="L41">    private LocalDateTime createdAt;</span>
+
+    @PrePersist
+    protected void onCreate() {
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (createdAt == null) createdAt = LocalDateTime.now();</span>
+<span class="nc" id="L46">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

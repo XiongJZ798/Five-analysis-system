@@ -204,59 +204,39 @@ public class FileServiceTest {
 
     @Test
     void testHandleDatabaseError() throws Exception {
-        // 创建模拟的MultipartFile
         MultipartFile mockFile = mock(MultipartFile.class);
         when(mockFile.getOriginalFilename()).thenReturn("test.xlsx");
         
-        // 读取模拟的Excel文件内容
         InputStream inputStream = mock(InputStream.class);
         when(mockFile.getInputStream()).thenReturn(inputStream);
         
-        // 创建模拟的工作簿和工作表
         Workbook mockWorkbook = mock(Workbook.class);
         Sheet mockSheet = mock(Sheet.class);
-        Row headerRow = mock(Row.class);
         Row dataRow = mock(Row.class);
         
         try (MockedStatic<WorkbookFactory> workbookFactoryMock = mockStatic(WorkbookFactory.class)) {
             workbookFactoryMock.when(() -> WorkbookFactory.create(inputStream)).thenReturn(mockWorkbook);
             
             when(mockWorkbook.getSheetAt(0)).thenReturn(mockSheet);
-            when(mockSheet.getRow(0)).thenReturn(headerRow);
             when(mockSheet.getRow(1)).thenReturn(dataRow);
             when(mockSheet.getLastRowNum()).thenReturn(1);
             when(mockSheet.getPhysicalNumberOfRows()).thenReturn(2);
-            when(headerRow.getLastCellNum()).thenReturn((short) 7);
             
-            // 模拟数据行（使用合法值，确保能通过验证才到saveAll）
-            when(dataRow.getLastCellNum()).thenReturn((short) 7);
             double[] columnValues = {
-                DateUtil.getExcelDate(new Date()), // TestTime
-                -85.0, // RSRP
-                15.0,  // SINR
-                100.0, // MacThroughput
-                2.0,   // Rank (1-8)
-                15.0,  // MCS (0-28)
-                50.0   // PRB
+                DateUtil.getExcelDate(new Date()),
+                -85.0, 15.0, 100.0, 2.0, 15.0, 50.0
             };
             for (int i = 0; i < 7; i++) {
-                Cell headerCell = mock(Cell.class);
-                when(headerRow.getCell(i)).thenReturn(headerCell);
-                when(headerCell.getStringCellValue()).thenReturn("Column" + i);
-                
                 Cell dataCell = mock(Cell.class);
                 when(dataRow.getCell(i)).thenReturn(dataCell);
                 when(dataCell.getCellType()).thenReturn(CellType.NUMERIC);
                 when(dataCell.getNumericCellValue()).thenReturn(columnValues[i]);
             }
             
-            // 模拟数据库错误
             doThrow(new RuntimeException("Database error")).when(testDataRepository).saveAll(any());
             
-            // 执行测试
             ApiResponse<?> response = fileService.processExcelFile(mockFile);
             
-            // 验证错误消息
             assertNotNull(response);
             assertTrue(response.getCode() >= 400);
             assertTrue(response.getMessage().contains("文件处理失败"));

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalysisController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Five-analysis-system</a> &gt; <a href="index.source.html" class="el_package">com._5ganalysisrate.g5rate.controller</a> &gt; <span class="el_source">AnalysisController.java</span></div><h1>AnalysisController.java</h1><pre class="source lang-java linenums">package com._5ganalysisrate.g5rate.controller;
+
+import com._5ganalysisrate.g5rate.dto.ApiResponse;
+import com._5ganalysisrate.g5rate.service.AnalysisService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@RestController
+@RequestMapping(&quot;/analysis&quot;)
+<span class="fc" id="L18">@RequiredArgsConstructor</span>
+@CrossOrigin(origins = &quot;http://localhost:3000&quot;, allowCredentials = &quot;true&quot;, maxAge = 3600)
+public class AnalysisController {
+
+    private final AnalysisService analysisService;
+<span class="fc" id="L23">    private static final Logger log = LoggerFactory.getLogger(AnalysisController.class);</span>
+
+    @PostMapping(&quot;/time-series-chart&quot;)
+    public ApiResponse&lt;?&gt; getTimeSeriesData(@RequestBody Map&lt;String, List&lt;String&gt;&gt; request) {
+        try {
+            // 基本参数验证
+<span class="fc" id="L29">            List&lt;String&gt; dimensions = request.get(&quot;dimensions&quot;);</span>
+<span class="pc bpc" id="L30" title="2 of 4 branches missed.">            if (dimensions == null || dimensions.isEmpty()) {</span>
+<span class="nc" id="L31">                return ApiResponse.error(400, &quot;请选择至少一个分析维度&quot;);</span>
+            }
+
+<span class="fc" id="L34">            log.info(&quot;接收到多维度分析请求，维度: {}&quot;, dimensions);</span>
+
+            // 性能监控
+<span class="fc" id="L37">            long startTime = System.nanoTime();</span>
+<span class="fc" id="L38">            Map&lt;String, Object&gt; result = analysisService.getTimeSeriesData(dimensions);</span>
+<span class="fc" id="L39">            long endTime = System.nanoTime();</span>
+<span class="fc" id="L40">            long duration = TimeUnit.NANOSECONDS.toMillis(endTime - startTime);</span>
+
+            // 记录性能信息
+<span class="fc" id="L43">            log.info(&quot;多维度分析API耗时: {}ms, 维度: {}, 数据点数: {}&quot;,</span>
+<span class="fc" id="L44">                duration,</span>
+                dimensions,
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">                result.containsKey(&quot;series&quot;) ?</span>
+<span class="fc" id="L47">                    ((List&lt;Map&lt;String, Object&gt;&gt;)result.get(&quot;series&quot;)).stream()</span>
+<span class="fc" id="L48">                        .mapToInt(m -&gt; ((List&lt;Object[]&gt;)m.get(&quot;data&quot;)).size())</span>
+<span class="pc" id="L49">                        .sum() : 0</span>
+            );
+
+<span class="fc" id="L52">            return ApiResponse.success(result);</span>
+<span class="nc" id="L53">        } catch (Exception e) {</span>
+<span class="nc" id="L54">            log.error(&quot;多维度分析数据获取失败&quot;, e);</span>
+            // 提供更详细的错误信息
+<span class="nc" id="L56">            String errorMsg = e.getMessage();</span>
+<span class="nc bnc" id="L57" title="All 4 branches missed.">            if (errorMsg == null || errorMsg.isEmpty()) {</span>
+<span class="nc" id="L58">                errorMsg = &quot;处理请求时发生未知错误&quot;;</span>
+            }
+<span class="nc" id="L60">            return ApiResponse.error(&quot;获取时序数据失败: &quot; + errorMsg);</span>
+        }
+    }
+
+    @PostMapping(&quot;/rate-distribution-chart&quot;)
+    public ApiResponse&lt;?&gt; getRateDistribution(@RequestBody(required = false) List&lt;Map&lt;String, Double&gt;&gt; ranges) {
+        try {
+            // 性能监控
+<span class="fc" id="L68">            long startTime = System.nanoTime();</span>
+
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            log.info(&quot;收到速率分布分析请求，自定义区间: {}&quot;, ranges != null ? ranges.size() : &quot;未提供&quot;);</span>
+
+<span class="pc bpc" id="L72" title="1 of 4 branches missed.">            if (ranges != null &amp;&amp; !ranges.isEmpty()) {</span>
+                // 记录自定义区间信息
+<span class="fc" id="L74">                StringBuilder rangeInfo = new StringBuilder(&quot;自定义区间详情: &quot;);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">                for (Map&lt;String, Double&gt; range : ranges) {</span>
+<span class="fc" id="L76">                    double min = range.get(&quot;min&quot;);</span>
+<span class="fc" id="L77">                    Double max = range.get(&quot;max&quot;);</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">                    String rangeStr = max != null ? String.format(&quot;%.1f-%.1f&quot;, min, max) : String.format(&quot;%.1f+&quot;, min);</span>
+<span class="fc" id="L79">                    rangeInfo.append(rangeStr).append(&quot;, &quot;);</span>
+<span class="fc" id="L80">                }</span>
+<span class="fc" id="L81">                log.info(rangeInfo.toString());</span>
+            }
+
+<span class="fc" id="L84">            Map&lt;String, Object&gt; result = analysisService.getRateDistribution(ranges);</span>
+
+<span class="fc" id="L86">            long endTime = System.nanoTime();</span>
+<span class="fc" id="L87">            long duration = TimeUnit.NANOSECONDS.toMillis(endTime - startTime);</span>
+
+            // 记录性能信息
+<span class="fc" id="L90">            log.info(&quot;速率分布API耗时: {}ms, 自定义区间: {}, 返回数据点: {}&quot;,</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">                duration,</span>
+<span class="fc" id="L92">                (ranges != null),</span>
+<span class="fc" id="L93">                ((List&lt;?&gt;)result.get(&quot;pieData&quot;)).size());</span>
+
+<span class="fc" id="L95">            return ApiResponse.success(result);</span>
+<span class="nc" id="L96">        } catch (Exception e) {</span>
+<span class="nc" id="L97">            log.error(&quot;获取速率分布数据失败&quot;, e);</span>
+            // 提供更详细的错误信息
+<span class="nc" id="L99">            String errorMsg = e.getMessage();</span>
+<span class="nc bnc" id="L100" title="All 4 branches missed.">            if (errorMsg == null || errorMsg.isEmpty()) {</span>
+<span class="nc" id="L101">                errorMsg = &quot;处理请求时发生未知错误&quot;;</span>
+            }
+<span class="nc" id="L103">            return ApiResponse.error(&quot;获取速率分布数据失败: &quot; + errorMsg);</span>
+        }
+    }
+
+    @PostMapping(&quot;/calculate-peak-rate&quot;)
+    public ApiResponse&lt;?&gt; calculatePeakRate(@RequestBody Map&lt;String, Object&gt; request) {
+        try {
+            // 参数验证
+<span class="pc bpc" id="L111" title="2 of 4 branches missed.">            if (!request.containsKey(&quot;mode&quot;) || !request.containsKey(&quot;bandwidth&quot;) ||</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">                !request.containsKey(&quot;dlSlots&quot;)) {</span>
+<span class="nc" id="L113">                return ApiResponse.error(400, &quot;缺少必要参数&quot;);</span>
+            }
+
+<span class="fc" id="L116">            String mode = (String) request.get(&quot;mode&quot;);</span>
+<span class="fc" id="L117">            String frameType = (String) request.get(&quot;frameType&quot;);</span>
+<span class="fc" id="L118">            double bandwidth = ((Number) request.get(&quot;bandwidth&quot;)).doubleValue();</span>
+
+            // 获取下行时隙数（FDD和TDD模式都需要）
+<span class="fc" id="L121">            Integer dlSlots = ((Number) request.get(&quot;dlSlots&quot;)).intValue();</span>
+
+            // 特殊时隙数仅在TDD模式下需要
+<span class="fc" id="L124">            Integer specialSlots = null;</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            if (&quot;TDD&quot;.equals(mode)) {</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">                if (!request.containsKey(&quot;specialSlots&quot;)) {</span>
+<span class="nc" id="L127">                    return ApiResponse.error(400, &quot;TDD模式下必须提供特殊时隙数&quot;);</span>
+                }
+<span class="fc" id="L129">                specialSlots = ((Number) request.get(&quot;specialSlots&quot;)).intValue();</span>
+            }
+
+            // 获取可选参数：调制阶数和DL流数
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">            Integer modulationOrder = request.containsKey(&quot;modulationOrder&quot;) ?</span>
+<span class="pc" id="L134">                ((Number) request.get(&quot;modulationOrder&quot;)).intValue() : null;</span>
+
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">            Integer dlStreams = request.containsKey(&quot;dlStreams&quot;) ?</span>
+<span class="pc" id="L137">                ((Number) request.get(&quot;dlStreams&quot;)).intValue() : null;</span>
+
+<span class="fc" id="L139">            double result = analysisService.calculatePeakRate(</span>
+                mode, frameType, bandwidth, dlSlots, specialSlots, modulationOrder, dlStreams);
+<span class="fc" id="L141">            return ApiResponse.success(result);</span>
+<span class="fc" id="L142">        } catch (Exception e) {</span>
+<span class="fc" id="L143">            e.printStackTrace();</span>
+            // 提供更详细的错误信息
+<span class="fc" id="L145">            String errorMsg = e.getMessage();</span>
+<span class="pc bpc" id="L146" title="2 of 4 branches missed.">            if (errorMsg == null || errorMsg.isEmpty()) {</span>
+<span class="nc" id="L147">                errorMsg = &quot;处理请求时发生未知错误&quot;;</span>
+            }
+<span class="fc" id="L149">            return ApiResponse.error(&quot;计算峰值速率失败: &quot; + errorMsg);</span>
+        }
+    }
+
+    /**
+     * 获取峰值速率计算历史 - 已禁用
+     * @param page 页码(从0开始)
+     * @param size 每页大小
+     * @return 分页的历史记录
+     */
+    /*
+    @GetMapping(&quot;/peak-rate-history&quot;)
+    public ApiResponse&lt;?&gt; getPeakRateHistory(
+            @RequestParam(defaultValue = &quot;0&quot;) int page,
+            @RequestParam(defaultValue = &quot;10&quot;) int size) {
+        try {
+            // 性能监控
+            long startTime = System.nanoTime();
+
+            Page&lt;PeakRateHistory&gt; historyPage = analysisService.getPeakRateHistory(page, size);
+
+            long endTime = System.nanoTime();
+            long duration = TimeUnit.NANOSECONDS.toMillis(endTime - startTime);
+
+            // 记录性能信息
+            log.info(&quot;获取峰值速率历史API耗时: {}ms, 页码: {}, 每页大小: {}&quot;, duration, page, size);
+
+            Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();
+            result.put(&quot;content&quot;, historyPage.getContent());
+            result.put(&quot;totalElements&quot;, historyPage.getTotalElements());
+            result.put(&quot;totalPages&quot;, historyPage.getTotalPages());
+            result.put(&quot;size&quot;, historyPage.getSize());
+            result.put(&quot;number&quot;, historyPage.getNumber());
+
+            return ApiResponse.success(result);
+        } catch (Exception e) {
+            log.error(&quot;获取峰值速率历史失败&quot;, e);
+            return ApiResponse.error(&quot;获取历史记录失败: &quot; + e.getMessage());
+        }
+    }
+    */
+
+    /**
+     * 速率对比分析 - 计算理论速率并与MAC层速率对比
+     */
+    @PostMapping(&quot;/rate-comparison&quot;)
+    public ApiResponse&lt;?&gt; getRateComparison(@RequestBody Map&lt;String, Object&gt; request) {
+        try {
+            // 参数验证
+<span class="nc" id="L198">            String mode = (String) request.get(&quot;mode&quot;);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            if (mode == null) {</span>
+<span class="nc" id="L200">                return ApiResponse.error(400, &quot;缺少计算模式参数&quot;);</span>
+            }
+
+<span class="nc" id="L203">            Integer dlSlots = ((Number) request.get(&quot;dlSlots&quot;)).intValue();</span>
+<span class="nc bnc" id="L204" title="All 4 branches missed.">            if (dlSlots == null || dlSlots &lt;= 0) {</span>
+<span class="nc" id="L205">                return ApiResponse.error(400, &quot;下行slot数必须大于0&quot;);</span>
+            }
+
+            // TDD模式下的特殊参数验证
+<span class="nc" id="L209">            String frameType = null;</span>
+<span class="nc" id="L210">            Integer specialSlots = null;</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            if (&quot;TDD&quot;.equals(mode)) {</span>
+<span class="nc" id="L212">                frameType = (String) request.get(&quot;frameType&quot;);</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">                if (frameType == null) {</span>
+<span class="nc" id="L214">                    return ApiResponse.error(400, &quot;TDD模式下必须提供帧结构类型&quot;);</span>
+                }
+
+<span class="nc bnc" id="L217" title="All 2 branches missed.">                specialSlots = request.containsKey(&quot;specialSlots&quot;) ?</span>
+<span class="nc" id="L218">                    ((Number) request.get(&quot;specialSlots&quot;)).intValue() : null;</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">                if (specialSlots == null) {</span>
+<span class="nc" id="L220">                    return ApiResponse.error(400, &quot;TDD模式下必须提供特殊slot数&quot;);</span>
+                }
+
+<span class="nc bnc" id="L223" title="All 4 branches missed.">                if (specialSlots &lt; 0 || specialSlots &gt; 14) {</span>
+<span class="nc" id="L224">                    return ApiResponse.error(400, &quot;特殊slot数必须在0-14之间&quot;);</span>
+                }
+
+<span class="nc bnc" id="L227" title="All 2 branches missed.">                if (dlSlots + specialSlots &gt; 14) {</span>
+<span class="nc" id="L228">                    return ApiResponse.error(400, &quot;下行slot数和特殊slot数之和不能超过14&quot;);</span>
+                }
+            }
+
+            // 调用服务获取对比数据
+<span class="nc" id="L233">            Map&lt;String, Object&gt; result = analysisService.calculateRateComparison(</span>
+                mode, frameType, dlSlots, specialSlots);
+
+<span class="nc" id="L236">            return ApiResponse.success(result);</span>
+<span class="nc" id="L237">        } catch (Exception e) {</span>
+<span class="nc" id="L238">            log.error(&quot;速率对比分析失败&quot;, e);</span>
+<span class="nc" id="L239">            return ApiResponse.error(&quot;速率对比分析失败: &quot; + e.getMessage());</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
