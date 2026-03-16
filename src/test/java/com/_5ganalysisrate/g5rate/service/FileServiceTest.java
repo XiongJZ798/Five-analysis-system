@@ -151,50 +151,36 @@ public class FileServiceTest {
         MultipartFile mockFile = mock(MultipartFile.class);
         when(mockFile.getOriginalFilename()).thenReturn("test.xlsx");
         
-        // 读取模拟的Excel文件内容
         InputStream inputStream = mock(InputStream.class);
         when(mockFile.getInputStream()).thenReturn(inputStream);
         
-        // 创建模拟的工作簿和工作表
         Workbook mockWorkbook = mock(Workbook.class);
         Sheet mockSheet = mock(Sheet.class);
-        Row headerRow = mock(Row.class);
         Row dataRow = mock(Row.class);
         
         try (MockedStatic<WorkbookFactory> workbookFactoryMock = mockStatic(WorkbookFactory.class)) {
             workbookFactoryMock.when(() -> WorkbookFactory.create(inputStream)).thenReturn(mockWorkbook);
             
             when(mockWorkbook.getSheetAt(0)).thenReturn(mockSheet);
-            when(mockSheet.getRow(0)).thenReturn(headerRow);
             when(mockSheet.getRow(1)).thenReturn(dataRow);
             when(mockSheet.getLastRowNum()).thenReturn(1);
-            when(headerRow.getLastCellNum()).thenReturn((short) 7);
-            when(dataRow.getLastCellNum()).thenReturn((short) 7);
+            when(mockSheet.getPhysicalNumberOfRows()).thenReturn(2);
             
-            // 模拟单元格数据
+            // 模拟单元格数据（每列使用合法值）
+            double[] columnValues = {
+                DateUtil.getExcelDate(new Date()), // col0: TestTime as Excel serial
+                -85.0,   // col1: RSRP
+                15.0,    // col2: SINR
+                100.0,   // col3: MacThroughput
+                2.0,     // col4: Rank (1-8)
+                15.0,    // col5: MCS (0-28)
+                50.0     // col6: PRB
+            };
             for (int i = 0; i < 7; i++) {
-                Cell headerCell = mock(Cell.class);
-                when(headerRow.getCell(i)).thenReturn(headerCell);
-                
-                // 头部单元格内容
-                String[] headers = {"TestTime", "RSRP", "SINR", "MacThroughput", "Rank", "MCS", "RbNum", "BLER"};
-                if (i < headers.length) {
-                    when(headerCell.getStringCellValue()).thenReturn(headers[i]);
-                }
-                
                 Cell dataCell = mock(Cell.class);
                 when(dataRow.getCell(i)).thenReturn(dataCell);
-                
-                // 根据列类型设置单元格值
-                if (i == 0) {
-                    // TestTime 列
-                    when(dataCell.getCellType()).thenReturn(CellType.NUMERIC);
-                    when(dataCell.getNumericCellValue()).thenReturn(DateUtil.getExcelDate(new Date()));
-                } else {
-                    // 数值列
-                    when(dataCell.getCellType()).thenReturn(CellType.NUMERIC);
-                    when(dataCell.getNumericCellValue()).thenReturn(10.0 + i);
-                }
+                when(dataCell.getCellType()).thenReturn(CellType.NUMERIC);
+                when(dataCell.getNumericCellValue()).thenReturn(columnValues[i]);
             }
             
             // 预期保存的实体
@@ -239,10 +225,20 @@ public class FileServiceTest {
             when(mockSheet.getRow(0)).thenReturn(headerRow);
             when(mockSheet.getRow(1)).thenReturn(dataRow);
             when(mockSheet.getLastRowNum()).thenReturn(1);
+            when(mockSheet.getPhysicalNumberOfRows()).thenReturn(2);
             when(headerRow.getLastCellNum()).thenReturn((short) 7);
             
-            // 模拟数据行
+            // 模拟数据行（使用合法值，确保能通过验证才到saveAll）
             when(dataRow.getLastCellNum()).thenReturn((short) 7);
+            double[] columnValues = {
+                DateUtil.getExcelDate(new Date()), // TestTime
+                -85.0, // RSRP
+                15.0,  // SINR
+                100.0, // MacThroughput
+                2.0,   // Rank (1-8)
+                15.0,  // MCS (0-28)
+                50.0   // PRB
+            };
             for (int i = 0; i < 7; i++) {
                 Cell headerCell = mock(Cell.class);
                 when(headerRow.getCell(i)).thenReturn(headerCell);
@@ -251,7 +247,7 @@ public class FileServiceTest {
                 Cell dataCell = mock(Cell.class);
                 when(dataRow.getCell(i)).thenReturn(dataCell);
                 when(dataCell.getCellType()).thenReturn(CellType.NUMERIC);
-                when(dataCell.getNumericCellValue()).thenReturn(10.0);
+                when(dataCell.getNumericCellValue()).thenReturn(columnValues[i]);
             }
             
             // 模拟数据库错误

@@ -45,6 +45,60 @@ CREATE TABLE time_series_data (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='时序数据';
 
 -- 初始化默认数据（可选）
-INSERT INTO test_data (bler, create_time, mac_throughput, mcs, mimo_rank, rb_num, rsrp, sinr, test_time, update_time)
+INSERT INTO test_data (bler, create_time, mac_throughput, mcs, mimo_rank, prb_num, rsrp, sinr, test_time, update_time)
 SELECT 1.5, NOW(), 100.0, 15, 2, 50, -85.0, 15.0, NOW(), NOW()
-WHERE NOT EXISTS (SELECT 1 FROM test_data LIMIT 1); 
+WHERE NOT EXISTS (SELECT 1 FROM test_data);
+
+-- 创建分析任务主表
+CREATE TABLE IF NOT EXISTS analysis_task (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    file_name VARCHAR(255) NOT NULL COMMENT '上传的文件名',
+    task_type VARCHAR(20) NOT NULL DEFAULT 'RULE_AI' COMMENT '任务类型: RULE_ONLY / RULE_AI',
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT '任务状态: PENDING/RUNNING/SUCCESS/FAILED/PARTIAL_SUCCESS',
+    progress INT NOT NULL DEFAULT 0 COMMENT '任务进度(0-100)',
+    error_message TEXT NULL COMMENT '失败时的错误信息',
+    created_by VARCHAR(100) NULL COMMENT '创建人',
+    created_at DATETIME NOT NULL COMMENT '创建时间',
+    updated_at DATETIME NOT NULL COMMENT '更新时间',
+    INDEX idx_status (status),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析任务';
+
+-- 创建规则分析结果表
+CREATE TABLE IF NOT EXISTS analysis_result_rule (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    task_id BIGINT NOT NULL COMMENT '关联的分析任务ID',
+    kpi_summary_json MEDIUMTEXT NULL COMMENT 'KPI汇总JSON',
+    timeseries_json MEDIUMTEXT NULL COMMENT '时序分析JSON',
+    distribution_json MEDIUMTEXT NULL COMMENT '分布分析JSON',
+    peak_rate_json MEDIUMTEXT NULL COMMENT '峰值速率分析JSON',
+    created_at DATETIME NOT NULL COMMENT '创建时间',
+    INDEX idx_rule_task_id (task_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='规则分析结果';
+
+-- 创建AI分析结果表
+CREATE TABLE IF NOT EXISTS analysis_result_ai (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    task_id BIGINT NOT NULL COMMENT '关联的分析任务ID',
+    model_name VARCHAR(100) NULL COMMENT '使用的AI模型名称',
+    prompt_version VARCHAR(50) NULL COMMENT 'Prompt版本号',
+    input_digest VARCHAR(64) NULL COMMENT '输入数据的摘要(SHA-256)',
+    output_json MEDIUMTEXT NULL COMMENT 'AI结构化输出JSON',
+    confidence_score DOUBLE NULL COMMENT '综合置信度(0-1)',
+    token_usage INT NULL COMMENT '消耗的token数量',
+    latency_ms BIGINT NULL COMMENT 'AI调用延迟(毫秒)',
+    created_at DATETIME NOT NULL COMMENT '创建时间',
+    INDEX idx_ai_task_id (task_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析结果';
+
+-- 创建分析反馈表
+CREATE TABLE IF NOT EXISTS analysis_feedback (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    task_id BIGINT NOT NULL COMMENT '关联的分析任务ID',
+    finding_id VARCHAR(50) NULL COMMENT '关联的发现项ID',
+    feedback_type VARCHAR(20) NOT NULL COMMENT '反馈类型: ACCEPT/REJECT/PARTIAL',
+    comment TEXT NULL COMMENT '反馈说明',
+    created_by VARCHAR(100) NULL COMMENT '反馈人',
+    created_at DATETIME NOT NULL COMMENT '创建时间',
+    INDEX idx_feedback_task_id (task_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI分析反馈'; 

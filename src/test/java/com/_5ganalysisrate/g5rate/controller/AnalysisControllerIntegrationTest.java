@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.greaterThan;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class AnalysisControllerIntegrationTest {
 
     @Autowired
@@ -46,8 +48,8 @@ public class AnalysisControllerIntegrationTest {
         data1.setSinr(15.0);
         data1.setMacThroughput(100.0);
         data1.setRank(2);
-        data1.setMcs(15);
-        data1.setRbNum(50);
+        data1.setMcs(15.0);
+        data1.setPrbNum(50);
         data1.setBler(1.5);
 
         TestData data2 = new TestData();
@@ -56,8 +58,8 @@ public class AnalysisControllerIntegrationTest {
         data2.setSinr(12.0);
         data2.setMacThroughput(80.0);
         data2.setRank(1);
-        data2.setMcs(12);
-        data2.setRbNum(40);
+        data2.setMcs(12.0);
+        data2.setPrbNum(40);
         data2.setBler(2.0);
 
         testDataRepository.saveAll(Arrays.asList(data1, data2));

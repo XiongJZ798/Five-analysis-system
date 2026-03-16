@@ -225,3 +225,14 @@ jvm:
     # 异常处理
     crash-on-out-of-memory-error: true
     error-file: logs/hs_err_pid%p.log 
+# AI分析服务配置
+ai:
+  api:
+    # AI服务地址（留空则使用模拟模式，不调用真实AI API）
+    url: ${AI_API_URL:}
+    # AI服务密钥
+    key: ${AI_API_KEY:}
+    # 使用的模型名称
+    model: ${AI_API_MODEL:gpt-3.5-turbo}
+    # 请求超时时间（秒）
+    timeout-seconds: ${AI_API_TIMEOUT:60}
