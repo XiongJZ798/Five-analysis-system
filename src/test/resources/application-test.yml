@@ -9,13 +9,25 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+    defer-datasource-initialization: true
     properties:
       hibernate:
         format_sql: true
+  sql:
+    init:
+      mode: embedded
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
+# AI配置（测试环境使用模拟模式）
+ai:
+  api:
+    url: ""
+    key: ""
+    model: mock-model
+    timeout-seconds: 10
 
 logging:
   level:

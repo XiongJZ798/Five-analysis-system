@@ -62,12 +62,11 @@ public class AnalysisController {
     }
 
     @PostMapping("/rate-distribution-chart")
-    public ApiResponse<?> getRateDistribution(@RequestBody(required = false) Map<String, List<Map<String, Double>>> request) {
+    public ApiResponse<?> getRateDistribution(@RequestBody(required = false) List<Map<String, Double>> ranges) {
         try {
             // 性能监控
             long startTime = System.nanoTime();
 
-            List<Map<String, Double>> ranges = request != null ? request.get("ranges") : null;
             log.info("收到速率分布分析请求，自定义区间: {}", ranges != null ? ranges.size() : "未提供");
 
             if (ranges != null && !ranges.isEmpty()) {
