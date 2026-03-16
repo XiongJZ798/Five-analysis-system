@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AiAnalysisResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Five-analysis-system</a> &gt; <a href="index.source.html" class="el_package">com._5ganalysisrate.g5rate.domain.entity</a> &gt; <span class="el_source">AiAnalysisResult.java</span></div><h1>AiAnalysisResult.java</h1><pre class="source lang-java linenums">package com._5ganalysisrate.g5rate.domain.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+/**
+ * AI 分析结果实体
+ */
+<span class="pc bnc" id="L11" title="All 86 branches missed.">@Data</span>
+@Entity
+@Table(name = &quot;analysis_result_ai&quot;)
+public class AiAnalysisResult {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+<span class="fc" id="L18">    private Long id;</span>
+
+    /** 关联任务ID */
+    @Column(name = &quot;task_id&quot;, nullable = false)
+<span class="nc" id="L22">    private Long taskId;</span>
+
+    /** 模型名称 */
+    @Column(name = &quot;model_name&quot;, nullable = false, length = 100)
+<span class="nc" id="L26">    private String modelName;</span>
+
+    /** 提示词版本 */
+    @Column(name = &quot;prompt_version&quot;, nullable = false, length = 50)
+<span class="nc" id="L30">    private String promptVersion;</span>
+
+    /** 输入摘要 */
+    @Column(name = &quot;input_digest&quot;, length = 64)
+<span class="nc" id="L34">    private String inputDigest;</span>
+
+    /** AI 结构化输出 JSON */
+    @Column(name = &quot;output_json&quot;, columnDefinition = &quot;LONGTEXT&quot;)
+<span class="nc" id="L38">    private String outputJson;</span>
+
+    /** 置信度得分 */
+    @Column(name = &quot;confidence_score&quot;)
+<span class="nc" id="L42">    private Double confidenceScore;</span>
+
+    /** Token 用量 */
+    @Column(name = &quot;token_usage&quot;)
+<span class="nc" id="L46">    private Integer tokenUsage;</span>
+
+    /** 调用耗时 ms */
+    @Column(name = &quot;latency_ms&quot;)
+<span class="nc" id="L50">    private Long latencyMs;</span>
+
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+<span class="nc" id="L53">    private LocalDateTime createdAt;</span>
+
+    @PrePersist
+    protected void onCreate() {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (createdAt == null) {</span>
+<span class="nc" id="L58">            createdAt = LocalDateTime.now();</span>
+        }
+<span class="nc" id="L60">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

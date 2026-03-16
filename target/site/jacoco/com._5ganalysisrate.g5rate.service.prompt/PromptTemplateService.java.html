@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PromptTemplateService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Five-analysis-system</a> &gt; <a href="index.source.html" class="el_package">com._5ganalysisrate.g5rate.service.prompt</a> &gt; <span class="el_source">PromptTemplateService.java</span></div><h1>PromptTemplateService.java</h1><pre class="source lang-java linenums">package com._5ganalysisrate.g5rate.service.prompt;
+
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
+
+/**
+ * 提示词模板服务
+ * 维护版本化的中文 5G 优化分析提示词
+ */
+@Service
+<span class="fc" id="L12">public class PromptTemplateService {</span>
+
+    /** 当前提示词版本 */
+    public static final String CURRENT_VERSION = &quot;v1.0&quot;;
+
+    /**
+     * 获取当前系统提示词版本
+     */
+    public String getCurrentVersion() {
+<span class="nc" id="L21">        return CURRENT_VERSION;</span>
+    }
+
+    /**
+     * 构建系统提示词（角色、约束、输出格式）
+     */
+    public String buildSystemPrompt() {
+<span class="fc" id="L28">        return &quot;&quot;&quot;</span>
+                你是一名专业的 5G 无线网络性能优化工程师，具备深厚的 3GPP 标准知识和丰富的网络优化经验。
+                
+                【职责】
+                - 基于系统提供的 KPI 指标和规则分析结果，对 5G 网络性能进行专业诊断
+                - 识别网络问题，推断可能的根因，并给出具体可落地的优化建议
+                
+                【约束】
+                1. 所有结论必须基于输入的指标数据，不允许编造不存在的数据
+                2. 必须遵循 3GPP 标准规范（TS 38.306、TS 38.214 等），不能违背技术原理
+                3. 根因分析必须标注置信度（0.0~1.0），不确定的信息置信度应低于 0.5
+                4. 优化建议必须注明预期收益和潜在风险
+                5. 若数据不足以支撑某项结论，必须在 limitations 中说明
+                6. 严禁捏造指标值或夸大分析结论
+                
+                【输出格式】
+                必须严格按照以下 JSON Schema 输出，不得包含任何 JSON 之外的内容：
+                {
+                  &quot;summary&quot;: &quot;string&quot;,
+                  &quot;findings&quot;: [
+                    {
+                      &quot;id&quot;: &quot;F1&quot;,
+                      &quot;title&quot;: &quot;string&quot;,
+                      &quot;description&quot;: &quot;string&quot;,
+                      &quot;evidence&quot;: [{&quot;metric&quot;: &quot;string&quot;, &quot;value&quot;: 0.0, &quot;unit&quot;: &quot;string&quot;}],
+                      &quot;severity&quot;: &quot;HIGH|MEDIUM|LOW&quot;
+                    }
+                  ],
+                  &quot;root_causes&quot;: [
+                    {&quot;finding_id&quot;: &quot;F1&quot;, &quot;cause&quot;: &quot;string&quot;, &quot;confidence&quot;: 0.0}
+                  ],
+                  &quot;actions&quot;: [
+                    {
+                      &quot;priority&quot;: &quot;P0|P1|P2&quot;,
+                      &quot;action&quot;: &quot;string&quot;,
+                      &quot;expected_gain&quot;: &quot;string&quot;,
+                      &quot;risk&quot;: &quot;string&quot;
+                    }
+                  ],
+                  &quot;compliance_check&quot;: {
+                    &quot;is_3gpp_aligned&quot;: true,
+                    &quot;notes&quot;: &quot;string&quot;
+                  },
+                  &quot;limitations&quot;: [&quot;string&quot;]
+                }
+                &quot;&quot;&quot;;
+    }
+
+    /**
+     * 构建用户提示词，注入规则分析结果和 KPI 摘要
+     *
+     * @param kpiSummary    KPI 统计摘要
+     * @param timeseriesInfo 时序异常摘要
+     * @param distributionInfo 速率分布摘要
+     * @param peakRateInfo 峰值速率计算结果
+     * @param extraContext  额外上下文（可为 null）
+     */
+    public String buildUserPrompt(Map&lt;String, Object&gt; kpiSummary,
+                                   String timeseriesInfo,
+                                   String distributionInfo,
+                                   String peakRateInfo,
+                                   String extraContext) {
+<span class="fc" id="L90">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L91">        sb.append(&quot;以下是本次 5G 网络性能测试数据的分析结果，请根据这些数据给出专业诊断报告。\n\n&quot;);</span>
+
+<span class="fc" id="L93">        sb.append(&quot;## KPI 统计摘要\n&quot;);</span>
+<span class="pc bpc" id="L94" title="1 of 4 branches missed.">        if (kpiSummary != null &amp;&amp; !kpiSummary.isEmpty()) {</span>
+<span class="fc" id="L95">            kpiSummary.forEach((k, v) -&gt; sb.append(&quot;- &quot;).append(k).append(&quot;: &quot;).append(v).append(&quot;\n&quot;));</span>
+        } else {
+<span class="fc" id="L97">            sb.append(&quot;- 暂无 KPI 统计数据\n&quot;);</span>
+        }
+
+<span class="fc" id="L100">        sb.append(&quot;\n## 时序分析摘要\n&quot;);</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        sb.append(timeseriesInfo != null ? timeseriesInfo : &quot;暂无时序分析数据&quot;);</span>
+
+<span class="fc" id="L103">        sb.append(&quot;\n\n## 速率分布摘要\n&quot;);</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        sb.append(distributionInfo != null ? distributionInfo : &quot;暂无速率分布数据&quot;);</span>
+
+<span class="fc" id="L106">        sb.append(&quot;\n\n## 3GPP 峰值速率计算结果\n&quot;);</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        sb.append(peakRateInfo != null ? peakRateInfo : &quot;未执行峰值速率计算&quot;);</span>
+
+<span class="pc bpc" id="L109" title="3 of 4 branches missed.">        if (extraContext != null &amp;&amp; !extraContext.isBlank()) {</span>
+<span class="nc" id="L110">            sb.append(&quot;\n\n## 附加背景信息\n&quot;).append(extraContext);</span>
+        }
+
+<span class="fc" id="L113">        sb.append(&quot;\n\n请根据以上数据，按照要求的 JSON 格式输出分析报告。&quot;);</span>
+
+<span class="fc" id="L115">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

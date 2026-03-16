@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Five-analysis-system</a> &gt; <a href="index.source.html" class="el_package">com._5ganalysisrate.g5rate.service</a> &gt; <span class="el_source">ReportService.java</span></div><h1>ReportService.java</h1><pre class="source lang-java linenums">package com._5ganalysisrate.g5rate.service;
+
+import com._5ganalysisrate.g5rate.domain.entity.AiAnalysisResult;
+import com._5ganalysisrate.g5rate.domain.entity.AnalysisTask;
+import com._5ganalysisrate.g5rate.domain.entity.RuleAnalysisResult;
+import com._5ganalysisrate.g5rate.dto.AiAnalysisResultResponse;
+import com._5ganalysisrate.g5rate.dto.AnalysisReportResponse;
+import com._5ganalysisrate.g5rate.dto.AnalysisTaskResponse;
+import com._5ganalysisrate.g5rate.dto.RuleAnalysisResultResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/**
+ * 报告整合服务
+ * 将规则分析与 AI 分析结果合并为统一报告 DTO，适合前端展示、Markdown/PDF 导出
+ */
+@Service
+<span class="nc" id="L26">@RequiredArgsConstructor</span>
+public class ReportService {
+
+<span class="fc" id="L29">    private static final Logger log = LoggerFactory.getLogger(ReportService.class);</span>
+
+    private final AnalysisTaskService analysisTaskService;
+    private final RuleAnalysisService ruleAnalysisService;
+    private final AiAnalysisService aiAnalysisService;
+<span class="nc" id="L34">    private final ObjectMapper objectMapper = new ObjectMapper();</span>
+
+    /**
+     * 构建任务状态响应 DTO
+     */
+    public AnalysisTaskResponse buildTaskResponse(AnalysisTask task) {
+<span class="nc" id="L40">        AnalysisTaskResponse resp = new AnalysisTaskResponse();</span>
+<span class="nc" id="L41">        resp.setTaskId(task.getId());</span>
+<span class="nc" id="L42">        resp.setUploadFileId(task.getUploadFileId());</span>
+<span class="nc" id="L43">        resp.setTaskType(task.getTaskType());</span>
+<span class="nc" id="L44">        resp.setStatus(task.getStatus());</span>
+<span class="nc" id="L45">        resp.setProgress(task.getProgress());</span>
+<span class="nc" id="L46">        resp.setErrorMessage(task.getErrorMessage());</span>
+<span class="nc" id="L47">        resp.setCreatedBy(task.getCreatedBy());</span>
+<span class="nc" id="L48">        resp.setCreatedAt(task.getCreatedAt());</span>
+<span class="nc" id="L49">        resp.setUpdatedAt(task.getUpdatedAt());</span>
+<span class="nc" id="L50">        return resp;</span>
+    }
+
+    /**
+     * 构建规则分析结果响应 DTO
+     */
+    public Optional&lt;RuleAnalysisResultResponse&gt; buildRuleResultResponse(Long taskId) {
+<span class="nc" id="L57">        return ruleAnalysisService.findByTaskId(taskId)</span>
+<span class="nc" id="L58">                .map(this::toRuleResultResponse);</span>
+    }
+
+    /**
+     * 构建 AI 分析结果响应 DTO
+     */
+    public Optional&lt;AiAnalysisResultResponse&gt; buildAiResultResponse(Long taskId) {
+<span class="nc" id="L65">        return aiAnalysisService.findByTaskId(taskId)</span>
+<span class="nc" id="L66">                .map(this::toAiResultResponse);</span>
+    }
+
+    /**
+     * 构建合并报告
+     */
+    public AnalysisReportResponse buildReport(AnalysisTask task) {
+<span class="nc" id="L73">        AnalysisReportResponse report = new AnalysisReportResponse();</span>
+<span class="nc" id="L74">        report.setTaskId(task.getId());</span>
+<span class="nc" id="L75">        report.setUploadFileId(task.getUploadFileId());</span>
+<span class="nc" id="L76">        report.setTaskType(task.getTaskType());</span>
+<span class="nc" id="L77">        report.setStatus(task.getStatus());</span>
+
+<span class="nc" id="L79">        buildRuleResultResponse(task.getId()).ifPresent(report::setRuleResult);</span>
+<span class="nc" id="L80">        buildAiResultResponse(task.getId()).ifPresent(report::setAiResult);</span>
+
+<span class="nc" id="L82">        report.setGeneratedAt(LocalDateTime.now());</span>
+<span class="nc" id="L83">        return report;</span>
+    }
+
+    // -------------------------------------------------------------------------
+
+    private RuleAnalysisResultResponse toRuleResultResponse(RuleAnalysisResult entity) {
+<span class="nc" id="L89">        RuleAnalysisResultResponse r = new RuleAnalysisResultResponse();</span>
+<span class="nc" id="L90">        r.setResultId(entity.getId());</span>
+<span class="nc" id="L91">        r.setTaskId(entity.getTaskId());</span>
+<span class="nc" id="L92">        r.setKpiSummary(parseJsonToMap(entity.getKpiSummaryJson()));</span>
+<span class="nc" id="L93">        r.setTimeseries(parseJsonToMap(entity.getTimeseriesJson()));</span>
+<span class="nc" id="L94">        r.setDistribution(parseJsonToMap(entity.getDistributionJson()));</span>
+<span class="nc" id="L95">        r.setPeakRate(parseJsonToMap(entity.getPeakRateJson()));</span>
+<span class="nc" id="L96">        r.setCreatedAt(entity.getCreatedAt());</span>
+<span class="nc" id="L97">        return r;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private AiAnalysisResultResponse toAiResultResponse(AiAnalysisResult entity) {
+<span class="nc" id="L102">        AiAnalysisResultResponse r = new AiAnalysisResultResponse();</span>
+<span class="nc" id="L103">        r.setResultId(entity.getId());</span>
+<span class="nc" id="L104">        r.setTaskId(entity.getTaskId());</span>
+<span class="nc" id="L105">        r.setModelName(entity.getModelName());</span>
+<span class="nc" id="L106">        r.setPromptVersion(entity.getPromptVersion());</span>
+<span class="nc" id="L107">        r.setConfidenceScore(entity.getConfidenceScore());</span>
+<span class="nc" id="L108">        r.setTokenUsage(entity.getTokenUsage());</span>
+<span class="nc" id="L109">        r.setLatencyMs(entity.getLatencyMs());</span>
+<span class="nc" id="L110">        r.setCreatedAt(entity.getCreatedAt());</span>
+
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (entity.getOutputJson() != null) {</span>
+            try {
+<span class="nc" id="L114">                Map&lt;String, Object&gt; parsed = objectMapper.readValue(entity.getOutputJson(), Map.class);</span>
+<span class="nc" id="L115">                r.setSummary((String) parsed.get(&quot;summary&quot;));</span>
+<span class="nc" id="L116">                r.setFindings((List&lt;Map&lt;String, Object&gt;&gt;) parsed.get(&quot;findings&quot;));</span>
+<span class="nc" id="L117">                r.setRootCauses((List&lt;Map&lt;String, Object&gt;&gt;) parsed.get(&quot;root_causes&quot;));</span>
+<span class="nc" id="L118">                r.setActions((List&lt;Map&lt;String, Object&gt;&gt;) parsed.get(&quot;actions&quot;));</span>
+<span class="nc" id="L119">                r.setComplianceCheck((Map&lt;String, Object&gt;) parsed.get(&quot;compliance_check&quot;));</span>
+<span class="nc" id="L120">                r.setLimitations((List&lt;String&gt;) parsed.get(&quot;limitations&quot;));</span>
+<span class="nc" id="L121">            } catch (Exception e) {</span>
+<span class="nc" id="L122">                log.warn(&quot;[ReportService] AI输出JSON解析失败: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L123">            }</span>
+        }
+
+<span class="nc" id="L126">        return r;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private Map&lt;String, Object&gt; parseJsonToMap(String json) {
+<span class="nc bnc" id="L131" title="All 4 branches missed.">        if (json == null || json.isBlank()) return Map.of();</span>
+        try {
+<span class="nc" id="L133">            return objectMapper.readValue(json, Map.class);</span>
+<span class="nc" id="L134">        } catch (Exception e) {</span>
+<span class="nc" id="L135">            return Map.of(&quot;raw&quot;, json);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
