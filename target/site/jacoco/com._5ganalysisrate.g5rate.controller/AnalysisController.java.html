@@ -15,12 +15,12 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping(&quot;/analysis&quot;)
-<span class="nc" id="L18">@RequiredArgsConstructor</span>
+<span class="fc" id="L18">@RequiredArgsConstructor</span>
 @CrossOrigin(origins = &quot;http://localhost:3000&quot;, allowCredentials = &quot;true&quot;, maxAge = 3600)
 public class AnalysisController {
 
     private final AnalysisService analysisService;
-<span class="nc" id="L23">    private static final Logger log = LoggerFactory.getLogger(AnalysisController.class);</span>
+<span class="fc" id="L23">    private static final Logger log = LoggerFactory.getLogger(AnalysisController.class);</span>
 
     @PostMapping(&quot;/time-series-chart&quot;)
     public ApiResponse&lt;?&gt; getTimeSeriesData(@RequestBody Map&lt;String, List&lt;String&gt;&gt; request) {

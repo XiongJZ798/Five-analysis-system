@@ -119,13 +119,20 @@ import java.util.Map;
 
     private LlmResponse parseResponse(String responseBody, long latencyMs) throws Exception {
 <span class="nc" id="L121">        JsonNode root = objectMapper.readTree(responseBody);</span>
-<span class="nc" id="L122">        String content = root.path(&quot;choices&quot;).get(0).path(&quot;message&quot;).path(&quot;content&quot;).asText();</span>
-<span class="nc" id="L123">        int totalTokens = root.path(&quot;usage&quot;).path(&quot;total_tokens&quot;).asInt(0);</span>
-<span class="nc" id="L124">        String usedModel = root.path(&quot;model&quot;).asText(model);</span>
+<span class="nc" id="L122">        JsonNode choices = root.path(&quot;choices&quot;);</span>
+<span class="nc bnc" id="L123" title="All 4 branches missed.">        if (!choices.isArray() || choices.isEmpty()) {</span>
+<span class="nc" id="L124">            throw new LlmCallException(&quot;LLM 响应缺少 choices 字段或为空&quot;);</span>
+        }
+<span class="nc" id="L126">        String content = choices.get(0).path(&quot;message&quot;).path(&quot;content&quot;).asText();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (content.isBlank()) {</span>
+<span class="nc" id="L128">            throw new LlmCallException(&quot;LLM 响应 content 为空&quot;);</span>
+        }
+<span class="nc" id="L130">        int totalTokens = root.path(&quot;usage&quot;).path(&quot;total_tokens&quot;).asInt(0);</span>
+<span class="nc" id="L131">        String usedModel = root.path(&quot;model&quot;).asText(model);</span>
 
-<span class="nc" id="L126">        log.info(&quot;[LLM] model={} tokens={} latency={}ms&quot;, usedModel, totalTokens, latencyMs);</span>
+<span class="nc" id="L133">        log.info(&quot;[LLM] model={} tokens={} latency={}ms&quot;, usedModel, totalTokens, latencyMs);</span>
 
-<span class="nc" id="L128">        return new LlmResponse(content, totalTokens, latencyMs, usedModel);</span>
+<span class="nc" id="L135">        return new LlmResponse(content, totalTokens, latencyMs, usedModel);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

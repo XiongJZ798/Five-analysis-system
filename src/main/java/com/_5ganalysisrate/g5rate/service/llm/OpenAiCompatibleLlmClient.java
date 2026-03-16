@@ -119,7 +119,14 @@ public class OpenAiCompatibleLlmClient implements LlmClient {
 
     private LlmResponse parseResponse(String responseBody, long latencyMs) throws Exception {
         JsonNode root = objectMapper.readTree(responseBody);
-        String content = root.path("choices").get(0).path("message").path("content").asText();
+        JsonNode choices = root.path("choices");
+        if (!choices.isArray() || choices.isEmpty()) {
+            throw new LlmCallException("LLM 响应缺少 choices 字段或为空");
+        }
+        String content = choices.get(0).path("message").path("content").asText();
+        if (content.isBlank()) {
+            throw new LlmCallException("LLM 响应 content 为空");
+        }
         int totalTokens = root.path("usage").path("total_tokens").asInt(0);
         String usedModel = root.path("model").asText(model);
 
